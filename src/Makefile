@@ -1,9 +1,9 @@
 
 CC=g++
 
-all: tn_fnds_yc
+all: tn_frnzy
 
-tn_fnds_yc: dio.o matlabfunctions.o platinum.o star.o synthesis.o test.o wavread.o
+tn_frnzy: dio.o matlabfunctions.o platinum.o star.o synthesis.o test.o wavread.o
 	$(CC) -g -o $@ $^ -L. -lm -lfftw3
 
 .cpp.o:
