@@ -1,6 +1,6 @@
 #include "fft.h"
 
-// ŠÔŒv‘ª—p(debug)
+// Time measurement (DEBUG)
 #include <windows.h>
 #include <mmsystem.h>
 #include <math.h>
@@ -81,7 +81,7 @@ fft_plan fft_plan_dft_r2c_1d(int n, double *in, fft_complex *out, unsigned int f
 void fft_execute(const fft_plan p)
 {
 	int i;
-	// “KØ‚ÈFFT‚ÌŠ„‚èU‚è‚ÆÀs
+	// é©åˆ‡ãªFFTã®å‰²ã‚ŠæŒ¯ã‚Šã¨å®Ÿè¡Œ
 	if(p.sign == FFT_FORWARD)
 	{
 		if(p.c_in == NULL) // r2c
