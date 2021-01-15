@@ -1,11 +1,11 @@
-//tn_fnds v0.0.5   2012/3/17
-//’Ç‰Á‚³‚ê‚Ä‚¢‚éƒRƒƒ“ƒg‚É‚ÍŒë‚è‚ª‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+// WORLD Synthesis
+
 #include "world.h"
 
 #include <stdio.h> // for debug
 #include <stdlib.h>
 
-// spectrum, cepstrum‚Í–ˆ‰ñmalloc, free‚·‚é‚Ì‚ª–Ê“|‚¾‚©‚çD
+// spectrum, cepstrumã¯æ¯å›malloc, freeã™ã‚‹ã®ãŒé¢å€’ã ã‹ã‚‰ï¼
 /*
 int getOneFrameSegment(double *f0, int tLen, double **specgram, double **aperiodicity, int fftl, double framePeriod, double currentTime, int fs, double defaultF0,
 						fftw_complex *spectrum, fftw_complex *cepstrum, 
@@ -20,7 +20,7 @@ void getMinimumPhaseSpectrum(double *inputSpec, fftw_complex *spectrum, fftw_com
 	forwardFFT = fftw_plan_dft_1d(fftl, spectrum, cepstrum, FFTW_FORWARD, FFTW_ESTIMATE);
 	inverseFFT = fftw_plan_dft_1d(fftl, cepstrum, spectrum, FFTW_BACKWARD, FFTW_ESTIMATE);
 
-	// ’l‚ğæ‚èo‚·
+	// å€¤ã‚’å–ã‚Šå‡ºã™
 	for(i = 0;i <= fftl/2;i++)	
 	{
 		spectrum[i][0] = log(inputSpec[i])/2.0;
@@ -52,7 +52,7 @@ void getMinimumPhaseSpectrum(double *inputSpec, fftw_complex *spectrum, fftw_com
 	}
 }
 */
-// “Á’è‚Ì‰“š‚ğæ“¾‚·‚éD
+// ç‰¹å®šæ™‚åˆ»ã®å¿œç­”ã‚’å–å¾—ã™ã‚‹ï¼
 /*
 void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residualSpecgram, int fftl, double framePeriod, double currentTime, int fs, double defaultF0,
 						fftw_complex *spectrum, fftw_complex *cepstrum, 
@@ -60,7 +60,7 @@ void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residu
 {
 	int i;
 	double real, imag, tmp;
-	fftw_plan	inverseFFT_RP;				// FFTƒZƒbƒg
+	fftw_plan	inverseFFT_RP;				// FFTã‚»ãƒƒãƒˆ
 
 	int currentFrame, currentPosition;
 
@@ -71,7 +71,7 @@ void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residu
 
 	tmp = currentTime + 1.0/(f0[currentFrame] == 0.0 ? defaultF0 : f0[currentFrame]);
 
-	// ’l‚ğæ‚èo‚·
+	// å€¤ã‚’å–ã‚Šå‡ºã™
 	getMinimumPhaseSpectrum(specgram[currentFrame], spectrum, cepstrum, fftl);
 
 	spectrum[0][0] *= residualSpecgram[currentFrame][0];
@@ -99,16 +99,16 @@ void synthesisPt100(double *f0, int tLen, double **aperiodicity, int fftl, doubl
 	int currentFrame = 0;
 	for(i = 0;;i++)
 	{
-		currentPosition = (int)(currentTime*(double)fs);//üŠú’PˆÊ‚ÅŒp‚¬‘«‚µ‚Ä‚¢‚­
+		currentPosition = (int)(currentTime*(double)fs);//å‘¨æœŸå˜ä½ã§ç¶™ãè¶³ã—ã¦ã„ã
 		for(j = 0;j < fftl/2;j++)
 		{
 			if(j+currentPosition >= xLen) break;
 			synthesisOut[j+currentPosition] += aperiodicity[currentFrame][j];
 		}
 
-		// XV
-		currentTime += 1.0/(f0[currentFrame] == 0.0 ? DEFAULT_F0 : f0[currentFrame]);//‚ğ1üŠú•ªi‚ß‚é
-		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//Ÿ‚ÉŒp‚¬‘«‚·ƒf[ƒ^ˆÊ’u‚ÍŸ‚Ì‚ÉÅ‚à‹ß‚¢ƒtƒŒ[ƒ€
+		// æ›´æ–°
+		currentTime += 1.0/(f0[currentFrame] == 0.0 ? DEFAULT_F0 : f0[currentFrame]);//æ™‚åˆ»ã‚’1å‘¨æœŸåˆ†é€²ã‚ã‚‹
+		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//æ¬¡ã«ç¶™ãè¶³ã™ãƒ‡ãƒ¼ã‚¿ä½ç½®ã¯æ¬¡ã®æ™‚åˆ»ã«æœ€ã‚‚è¿‘ã„ãƒ•ãƒ¬ãƒ¼ãƒ 
 		currentPosition = (int)(currentTime*(double)fs);
 		if(j+currentPosition >= xLen || currentFrame >= tLen) break;
 	}
@@ -133,10 +133,10 @@ void synthesisPt101(double fixedDefault_f0, double *f0, int tLen, double **aperi
 			synthesisOut[max(0, j+currentPosition)] += aperiodicity[fixedResidualSpecgramIndex[currentFrame]][j] * volume[currentFrame];
 		}
 
-		// XV
-		currentTime += 1.0/(f0[currentFrame] == 0.0 ? fixedDefault_f0 : f0[currentFrame]);//‚ğ1üŠú•ªi‚ß‚é
-		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//Ÿ‚ÉŒp‚¬‘«‚·ƒf[ƒ^ˆÊ’u‚ÍŸ‚Ì‚ÉÅ‚à‹ß‚¢ƒtƒŒ[ƒ€
-		currentPosition = (int)(currentTime*(double)fs);//üŠú’PˆÊ‚ÅŒp‚¬‘«‚µ‚Ä‚¢‚­
+		// æ›´æ–°
+		currentTime += 1.0/(f0[currentFrame] == 0.0 ? fixedDefault_f0 : f0[currentFrame]);//æ™‚åˆ»ã‚’1å‘¨æœŸåˆ†é€²ã‚ã‚‹
+		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//æ¬¡ã«ç¶™ãè¶³ã™ãƒ‡ãƒ¼ã‚¿ä½ç½®ã¯æ¬¡ã®æ™‚åˆ»ã«æœ€ã‚‚è¿‘ã„ãƒ•ãƒ¬ãƒ¼ãƒ 
+		currentPosition = (int)(currentTime*(double)fs);//å‘¨æœŸå˜ä½ã§ç¶™ãè¶³ã—ã¦ã„ã
 
 		if(j+currentPosition >= xLen || currentFrame >= tLen) break;
 	}

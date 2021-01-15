@@ -1,5 +1,5 @@
-//tn_fnds v0.0.4   2012/3/10
-//’Ç‰Á‚³‚ê‚Ä‚¢‚éƒRƒƒ“ƒg‚É‚ÍŒë‚è‚ª‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+// wavread
+
 #include <windows.h>
 #include <math.h>
 #include <stdio.h>
@@ -9,41 +9,41 @@
 
 //#pragma warning(disable:4996)
 
-/* wavreadŠÖ”‚ÌˆÚA */
+/* wavreadé–¢æ•°ã®ç§»æ¤ */
 double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offset, int *endbr)
 {
 	FILE *fp;
-	char dataCheck[5]; // ­‚µ‘½‚ß‚É
+	char dataCheck[5]; // å°‘ã—å¤šã‚ã«
 	unsigned char forIntNumber[4];
 	double tmp, signBias, zeroLine;
 	short int channel;
 	int quantizationByte;
 	double *waveForm;
 
-	dataCheck[4] = '\0'; // •¶š—ñÆ‡‚Ì‚½‚ßCÅŒã‚ÉI—¹•¶š‚ğ“ü‚ê‚éD
+	dataCheck[4] = '\0'; // æ–‡å­—åˆ—ç…§åˆã®ãŸã‚ï¼Œæœ€å¾Œã«çµ‚äº†æ–‡å­—ã‚’å…¥ã‚Œã‚‹ï¼
 //	fp = fopen(filename, "rb");
 	fp = fopen(filename, "rb");
 	if(NULL == fp) 
 	{
-	  //printf("ƒtƒ@ƒCƒ‹‚Ìƒ[ƒh‚É¸”s\n");
+	  //printf("ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—\n");
 	  printf("Loading file %s failed.\n", filename);
 		return NULL;
 	}
-	//ƒwƒbƒ_‚Ìƒ`ƒFƒbƒN
+	//ãƒ˜ãƒƒãƒ€ã®ãƒã‚§ãƒƒã‚¯
 	fread(dataCheck, sizeof(char), 4, fp); // "RIFF"
 	if(0 != strcmp(dataCheck,"RIFF"))
 	{
 		fclose(fp);
-		//printf("ƒwƒbƒ_RIFF‚ª•s³\n");
+		//printf("ãƒ˜ãƒƒãƒ€RIFFãŒä¸æ­£\n");
 		printf("Incorrect RIFF header\n");
 		return NULL;
 	}
-	fseek(fp, 4, SEEK_CUR); // 4ƒoƒCƒg”ò‚Î‚·
+	fseek(fp, 4, SEEK_CUR); // 4ãƒã‚¤ãƒˆé£›ã°ã™
 	fread(dataCheck, sizeof(char), 4, fp); // "WAVE"
 	if(0 != strcmp(dataCheck,"WAVE"))
 	{
 		fclose(fp);
-		//printf("ƒwƒbƒ_WAVE‚ª•s³\n");
+		//printf("ãƒ˜ãƒƒãƒ€WAVEãŒä¸æ­£\n");
 		printf("Incorrect WAVE header\n");
 		return NULL;
 	}
@@ -51,7 +51,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(0 != strcmp(dataCheck,"fmt "))
 	{
 		fclose(fp);
-		//printf("ƒwƒbƒ_fmt ‚ª•s³\n");
+		//printf("ãƒ˜ãƒƒãƒ€fmt ãŒä¸æ­£\n");
 		printf("Incorrect fmt header\n");
 		return NULL;
 	}
@@ -59,7 +59,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(16 == dataCheck[0] && 0 == dataCheck[1] && 0 == dataCheck[2] && 0 == dataCheck[3]))
 	{
 		fclose(fp);
-		//printf("ƒwƒbƒ_fmt (2)‚ª•s³\n");
+		//printf("ãƒ˜ãƒƒãƒ€fmt (2)ãŒä¸æ­£\n");
 		printf("Incorrect fmt header (2)\n");
 		return NULL;
 	}
@@ -67,7 +67,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(1 == dataCheck[0] && 0 == dataCheck[1]))
 	{
 		fclose(fp);
-		//printf("ƒtƒH[ƒ}ƒbƒgID‚ª•s³\n");
+		//printf("ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆIDãŒä¸æ­£\n");
 		printf("Incorrect format ID\n");
 		return NULL;
 	}
@@ -76,40 +76,40 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(1 == dataCheck[0] && 0 == dataCheck[1]))
 	{
 		fclose(fp);
-		printf("ƒXƒeƒŒƒI‚É‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñ\n");
+		printf("ã‚¹ãƒ†ãƒ¬ã‚ªã«ã¯å¯¾å¿œã—ã¦ã„ã¾ã›ã‚“\n");
 		return NULL;
 	}
 	*/
-	//ƒ`ƒƒƒ“ƒlƒ‹
+	//ãƒãƒ£ãƒ³ãƒãƒ«
 	//fread(&channel, sizeof(short int), 1, fp); 
 	fread(forIntNumber, sizeof(char), 2, fp);
 	channel = forIntNumber[0];
 	//printf("\nChannel: %d\n", channel);
 
-	// ƒTƒ“ƒvƒŠƒ“ƒOü”g”
+	// ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°å‘¨æ³¢æ•°
 	fread(forIntNumber, sizeof(char), 4, fp);
 	*fs = 0;
 	for(int i = 3;i >= 0;i--)
 	{
 	  *fs = (*fs << 8) + forIntNumber[i];
 	}
-	// —Êq‰»ƒrƒbƒg”
-	fseek(fp, 6, SEEK_CUR); // 6ƒoƒCƒg”ò‚Î‚·
+	// é‡å­åŒ–ãƒ“ãƒƒãƒˆæ•°
+	fseek(fp, 6, SEEK_CUR); // 6ãƒã‚¤ãƒˆé£›ã°ã™
 	fread(forIntNumber, sizeof(char), 2, fp);
 	*Nbit = forIntNumber[0];
-	// ƒwƒbƒ_
+	// ãƒ˜ãƒƒãƒ€
 	int dummy;
 	fread(dataCheck, sizeof(char), 4, fp); // "data"
 	while(0 != strcmp(dataCheck,"data"))
 	{
 		fread(&dummy, sizeof(char), 4, fp);
-		fseek(fp, dummy, SEEK_CUR); // –³ŠÖŒW‚Èƒ`ƒƒƒ“ƒN‚ğ“Ç‚İ”ò‚Î‚·
+		fseek(fp, dummy, SEEK_CUR); // ç„¡é–¢ä¿‚ãªãƒãƒ£ãƒ³ã‚¯ã‚’èª­ã¿é£›ã°ã™
 		fread(dataCheck, sizeof(char), 4, fp); // "data"
 //		fclose(fp);
-//		printf("ƒwƒbƒ_data‚ª•s³\n");
+//		printf("ãƒ˜ãƒƒãƒ€dataãŒä¸æ­£\n");
 //		return NULL;
 	}
-	// ƒTƒ“ƒvƒ‹“_‚Ì”
+	// ã‚µãƒ³ãƒ—ãƒ«ç‚¹ã®æ•°
 	fread(forIntNumber, sizeof(char), 4, fp); // "data"
 	*waveLength = 0;
 	for(int i = 3;i >= 0;i--)
@@ -118,7 +118,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	}
 	*waveLength /= (*Nbit/8 * channel);
 
-	if(*endbr < 0) // •‰‚Ìê‡‚Íoffset‚©‚ç‚Ì‹——£
+	if(*endbr < 0) // è² ã®å ´åˆã¯offsetã‹ã‚‰ã®è·é›¢
 	{
 		*endbr = (*waveLength * 1000 / *fs) - (*offset-*endbr);
 	}
@@ -130,7 +130,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	*offset = *offset - (st*1000 / *fs);
 	*waveLength = (ed - st + 1);
 
-	// ”gŒ`‚ğæ‚èo‚·
+	// æ³¢å½¢ã‚’å–ã‚Šå‡ºã™
 	waveForm = (double *)malloc(sizeof(double) * *waveLength);
 	if(waveForm == NULL) return NULL;
 
@@ -138,11 +138,11 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	zeroLine = pow(2.0,*Nbit-1);
 //	for(int i = 0;i < *waveLength;i++)
 
-	fseek(fp, st * quantizationByte * channel, SEEK_CUR);  //ƒXƒ^[ƒgˆÊ’u‚Ü‚Å“Ç‚İ”ò‚Î‚·
+	fseek(fp, st * quantizationByte * channel, SEEK_CUR);  //ã‚¹ã‚¿ãƒ¼ãƒˆä½ç½®ã¾ã§èª­ã¿é£›ã°ã™
 
 	unsigned char *wavbuff;
 	wavbuff = (unsigned char *) malloc(sizeof(char) * *waveLength * quantizationByte * channel);
-	fread(wavbuff, sizeof(char), *waveLength * quantizationByte * channel, fp); // ‘S•”ƒƒ‚ƒŠ‚É“Ç‚İ‚Ş
+	fread(wavbuff, sizeof(char), *waveLength * quantizationByte * channel, fp); // å…¨éƒ¨ãƒ¡ãƒ¢ãƒªã«èª­ã¿è¾¼ã‚€
 	int seekindex;
 
 	for(int i = 0;i < *waveLength;i++)
@@ -150,13 +150,13 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 		seekindex = i * quantizationByte * channel;
 		signBias = 0.0;
 		tmp = 0.0;
-		// •„†‚ÌŠm”F
+		// ç¬¦å·ã®ç¢ºèª
 		if(wavbuff[seekindex + quantizationByte-1] >= 128)
 		{
 			signBias = pow(2.0,*Nbit-1);
 			wavbuff[seekindex + quantizationByte-1] = wavbuff[seekindex + quantizationByte-1] & 0x7F;
 		}
-		// ƒf[ƒ^‚Ì“Ç‚İ‚İ
+		// ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 		for(int j = quantizationByte-1;j >= 0;j--)
 		{
 			tmp = tmp*256.0 + (double)(wavbuff[seekindex + j]);
@@ -164,7 +164,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 		waveForm[i] = (double)((tmp - signBias) / zeroLine);
 
 	}
-	// ¬Œ÷
+	// æˆåŠŸ
 	free(wavbuff);
 	fclose(fp);
 	return waveForm;

@@ -1,5 +1,4 @@
-//tn_fnds v0.0.6   2012/3/31
-//’Ç‰Á‚³‚ê‚Ä‚¢‚éƒRƒƒ“ƒg‚É‚ÍŒë‚è‚ª‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+// PLATINUM (Perfect Linear Aperiodicity Token Index Number Unified-Estimation Method)
 
 #include "world.h"
 
@@ -7,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-//tn_fnds ƒfƒoƒbƒO—p
+//tn_fnds ãƒ‡ãƒãƒƒã‚°ç”¨
 void pulseToFile(int pCount, double *pulseLocations, int *residualSpecgramLength)
 {
 	FILE *file;
@@ -60,17 +59,17 @@ void getOneFrameResidualSignal(double *x, int xLen, int fs, int positionIndex, d
 	double tmpValue = 100000.0; // safeGuard
 	for(i = 0;i < pCount;i++)
 	{
-		tmp = fabs(pulseLocations[i] - (double)positionIndex*framePeriod);//ƒtƒŒ[ƒ€‚ÉÅ‚à‹ß‚¢ƒpƒ‹ƒXH‚ğ’T‚·
+		tmp = fabs(pulseLocations[i] - (double)positionIndex*framePeriod);//ãƒ•ãƒ¬ãƒ¼ãƒ ã«æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã‚’æ¢ã™
 		if(tmp < tmpValue)
 		{
 			tmpValue = tmp;
 			tmpIndex = i;
 		}
-		index = 1+(int)(0.5+pulseLocations[tmpIndex]*fs);//Å‚à‹ß‚¢ƒpƒ‹ƒXH‚ÌƒTƒ“ƒvƒ‹ˆÊ’u?
+		index = 1+(int)(0.5+pulseLocations[tmpIndex]*fs);//æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®?
 	}
 
-	T0 = (double)fs/f0;//‚PüŠú‚ÌƒTƒ“ƒvƒ‹”iÀ”j
-	wLen = (int)(0.5 + T0*2.0);//2üŠú‚ÌƒTƒ“ƒvƒ‹”
+	T0 = (double)fs/f0;//ï¼‘å‘¨æœŸã®ã‚µãƒ³ãƒ—ãƒ«æ•°ï¼ˆå®Ÿæ•°ï¼‰
+	wLen = (int)(0.5 + T0*2.0);//2å‘¨æœŸã®ã‚µãƒ³ãƒ—ãƒ«æ•°
 
 	if(wLen+index-(int)(0.5+T0) >= xLen)
 	{
@@ -80,9 +79,9 @@ void getOneFrameResidualSignal(double *x, int xLen, int fs, int positionIndex, d
 
 	for(i = 0;i < wLen;i++)
 	{
-		tmpIndex = i+index - (int)(0.5+T0);//Å‚à‹ß‚¢ƒpƒ‹ƒXH‚Ì‘OŒã1üŠú•ª‚ÌƒCƒ“ƒfƒbƒNƒX
+		tmpIndex = i+index - (int)(0.5+T0);//æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã®å‰å¾Œ1å‘¨æœŸåˆ†ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 		residualSpec[i] = x[min( xLen-1, max(0, tmpIndex))] * 
-		(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//‘‹‚ğŠ|‚¯‚é
+		(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//çª“ã‚’æ›ã‘ã‚‹
 	}
 	for(;i < fftl/2;i++)
 	{
@@ -102,10 +101,10 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 	residualSpecgramLength[pCount-1] = 0;
 	for(j = 0;j < pCount-1; j++)
 	{
-		//ƒTƒ“ƒvƒ‹ˆÊ’u‚ğŒvZ
+		//ã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã‚’è¨ˆç®—
 		index = 1+(int)(0.5+pulseLocations[j]*fs);
 
-		//f0‚ğŒvZ
+		//f0ã‚’è¨ˆç®—
 		f0fi = pulseLocations[j] / (double)framePeriod;
 		f0si = (int)f0fi;
 		f0ei = f0si + 1;
@@ -113,12 +112,12 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 		ff0 = (f0[f0si] == 0.0 || f0[f0ei] == 0.0)? DEFAULT_F0:
 				(f0[f0si] == 0)? f0[f0ei]:            
 				(f0[f0ei] == 0)? f0[f0si]:  
-								 f0[f0si] + (f0[f0ei] - f0[f0si]) * (double)(f0fi - f0si);//‹ß‚­‚ÌƒtƒŒ[ƒ€‚Ì‘OŒã‚©‚ç’¼ü•âŠ®
+								 f0[f0si] + (f0[f0ei] - f0[f0si]) * (double)(f0fi - f0si);//è¿‘ãã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®å‰å¾Œã‹ã‚‰ç›´ç·šè£œå®Œ
 		
 
 
-		T0 = (double)fs/ff0;//‚PüŠú‚ÌƒTƒ“ƒvƒ‹”iÀ”j
-		wLen = (int)(0.5 + T0*2.0);//2üŠú‚ÌƒTƒ“ƒvƒ‹”
+		T0 = (double)fs/ff0;//ï¼‘å‘¨æœŸã®ã‚µãƒ³ãƒ—ãƒ«æ•°ï¼ˆå®Ÿæ•°ï¼‰
+		wLen = (int)(0.5 + T0*2.0);//2å‘¨æœŸã®ã‚µãƒ³ãƒ—ãƒ«æ•°
 
 		if(wLen+index-(int)(0.5+T0) >= xLen)
 		{
@@ -129,10 +128,10 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 
 		for(i = 0;i < residualSpecgramLength[j];i++)
 		{
-			tmpIndex = i+index - (int)(0.5+T0);//Å‚à‹ß‚¢ƒpƒ‹ƒXH‚Ì‘OŒã1üŠú•ª‚ÌƒCƒ“ƒfƒbƒNƒX
+			tmpIndex = i+index - (int)(0.5+T0);//æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã®å‰å¾Œ1å‘¨æœŸåˆ†ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 			residualSpecgram[j][i] = x[min( xLen-1, max(0, tmpIndex))];
 //			residualSpecgram[j][i] = x[min( xLen-1, max(0, tmpIndex))] * 
-//				(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//‘‹‚ğŠ|‚¯‚é
+//				(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//çª“ã‚’æ›ã‘ã‚‹
 		}
 		for(i =  residualSpecgramLength[j]; i < fftl; i++) residualSpecgram[j][i] = 0.0;
 	}
@@ -146,7 +145,7 @@ void PulseResidualWindow(double **residualSpecgram, int *residualSpecgramLength,
 		for(j = 0;j < residualSpecgramLength[i]; j++)
 		{
 			residualSpecgram[i][j] = residualSpecgram[i][j] * 
-				(0.5 - 0.5*cos(2.0*PI*(double)(j+1)/((double)(residualSpecgramLength[i]+1))));//‘‹‚ğŠ|‚¯‚é
+				(0.5 - 0.5*cos(2.0*PI*(double)(j+1)/((double)(residualSpecgramLength[i]+1))));//çª“ã‚’æ›ã‘ã‚‹
 		}
 	}
 }
@@ -164,14 +163,14 @@ void getFrameResidualIndex(int tLen, int pCount, double framePeriod, double *pul
 		tmpIndex = pCount-1;
 		for(i = 0;i < pCount-1;i++)
 		{
-			tmp = fabs(pulseLocations[i] +  - (double)j*framePeriod);//ƒtƒŒ[ƒ€‚ÉÅ‚à‹ß‚¢ƒpƒ‹ƒXH‚ğ’T‚·
+			tmp = fabs(pulseLocations[i] +  - (double)j*framePeriod);//ãƒ•ãƒ¬ãƒ¼ãƒ ã«æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã‚’æ¢ã™
 			if(tmp < tmpValue)
 			{
 				tmpValue = tmp;
 				tmpIndex = i;
 			}
 		}
-		residualSpecgramIndex[j] = tmpIndex;//Å‚à‹ß‚¢ƒpƒ‹ƒXH‚ÌƒCƒ“ƒfƒbƒNƒX
+		residualSpecgramIndex[j] = tmpIndex;//æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 	}
 }
 
@@ -185,9 +184,9 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 	for(i = 0;i < vuvNum;i++)
 	{
 		int stIndex, edIndex; // sample
-		// 0“_‚ªŠÜ‚Ü‚ê‚È‚¢‚æ‚¤‚ÉŠO‚·
-		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //“‡‚Ìæ“ª‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
-		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//“‡‚Ì––”ö‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
+		// 0ç‚¹ãŒå«ã¾ã‚Œãªã„ã‚ˆã†ã«å¤–ã™
+		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //å³¶ã®å…ˆé ­ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
+		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//å³¶ã®æœ«å°¾ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
 
 		wedgePhase = totalPhase[wedgeList[i]];
 		for(j = stIndex;j < edIndex-1;j++)
@@ -215,14 +214,14 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 	double tmp;
 	for(i = 0;i < vuvNum;i++)
 	{
-		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //“‡‚Ìæ“ª‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
-		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//“‡‚Ì––”ö‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
+		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //å³¶ã®å…ˆé ­ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
+		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//å³¶ã®æœ«å°¾ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
 
 		tmp = totalPhase[wedgeList[i]];
 
 		for(j = stIndex;j < edIndex;j++){
-//			basePhase[j] = fmod(totalPhase[j+1]-tmp, 2*PI) - fmod(totalPhase[j]-tmp, 2*PI);//ƒtƒŒ[ƒ€ŠÔ‚ÌˆÊ‘Š·H
-			basePhase[j] = fmod(totalPhase[j]-tmp+PI*0.5, 2*PI);  //tn_fnds ŠeƒTƒ“ƒvƒ‹‚ÌˆÊ‘Š‚ğ•â³
+//			basePhase[j] = fmod(totalPhase[j+1]-tmp, 2*PI) - fmod(totalPhase[j]-tmp, 2*PI);//ãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®ä½ç›¸å·®ï¼Ÿ
+			basePhase[j] = fmod(totalPhase[j]-tmp+PI*0.5, 2*PI);  //tn_fnds å„ã‚µãƒ³ãƒ—ãƒ«ã®ä½ç›¸ã‚’è£œæ­£
 		}
 
 //		basePhase[0] = 0; numberOfLocation = 0;
@@ -230,9 +229,9 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 		for(j = stIndex;j < edIndex-1;j++) 
 		{
 //			if(abs(basePhase[j]) > PI/2.0)
-			if(basePhase[j+1] < basePhase[j])  //ˆÊ‘Š‚ª2*PI‚ğ’´‚¦‚Ä0‚É–ß‚Á‚½
+			if(basePhase[j+1] < basePhase[j])  //ä½ç›¸ãŒ2*PIã‚’è¶…ãˆã¦0ã«æˆ»ã£ãŸ
 			{
-				tmpPulseLocations[numberOfLocation++] = (double)j/(double)fs;//ƒ[ƒƒNƒƒXˆÊ’u‚Ì
+				tmpPulseLocations[numberOfLocation++] = (double)j/(double)fs;//ã‚¼ãƒ­ã‚¯ãƒ­ã‚¹ä½ç½®ã®æ™‚åˆ»
 			}
 		}
 		for(j = 0;j < numberOfLocation;j++) pulseLocations[pCount++] = tmpPulseLocations[j];//
@@ -257,20 +256,20 @@ void getWedgeList(double *x, int xLen, int vuvNum, int *stList, int *edList, int
 
 	for(i = 0;i < vuvNum;i++)
 	{
-		center		= (int)((stList[i]+edList[i]+1)/2);           //“‡‚Ì’†‰›‚ÌƒtƒŒ[ƒ€ˆÊ’u
-		currentF0	= f0[center] == 0.0 ? DEFAULT_F0 : f0[center];//“‡‚Ì’†‰›‚ÌF0 ƒmƒCƒY—Ìˆæ‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒg
-		T0			= (int)((fs / currentF0)+0.5);                //“‡‚Ì’†‰›‚ÌF0‚Ì‚PüŠú‚ÌƒTƒ“ƒvƒ‹”
-//		peakIndex = (int)(((1+center)*framePeriod*fs/1000.0)+0.5);//“‡‚Ì’†‰›‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
-		peakIndex = (int)(((  center)*framePeriod*fs/1000.0)+0.5);//“‡‚Ì’†‰›‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
+		center		= (int)((stList[i]+edList[i]+1)/2);           //å³¶ã®ä¸­å¤®ã®ãƒ•ãƒ¬ãƒ¼ãƒ ä½ç½®
+		currentF0	= f0[center] == 0.0 ? DEFAULT_F0 : f0[center];//å³¶ã®ä¸­å¤®ã®F0 ãƒã‚¤ã‚ºé ˜åŸŸã®å ´åˆã¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
+		T0			= (int)((fs / currentF0)+0.5);                //å³¶ã®ä¸­å¤®ã®F0ã®ï¼‘å‘¨æœŸã®ã‚µãƒ³ãƒ—ãƒ«æ•°
+//		peakIndex = (int)(((1+center)*framePeriod*fs/1000.0)+0.5);//å³¶ã®ä¸­å¤®ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
+		peakIndex = (int)(((  center)*framePeriod*fs/1000.0)+0.5);//å³¶ã®ä¸­å¤®ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
 //		for(j = 0;j < T0*2;j++)
 		for(j = 0;j < T0*2+1;j++)
 		{
 //			tmpWav[j] = x[peakIndex-T0+j-1];
-			tmpWav[j] = x[max(0, min(xLen-1, peakIndex-T0+j-1))];//“‡‚Ì’†‰›‚Ì‚QüŠú•ª‚Ìƒf[ƒ^
+			tmpWav[j] = x[max(0, min(xLen-1, peakIndex-T0+j-1))];//å³¶ã®ä¸­å¤®ã®ï¼’å‘¨æœŸåˆ†ã®ãƒ‡ãƒ¼ã‚¿
 		}
 		peak = 0.0;
 		peakIndex = 0;
-		for(j = 0;j < T0*2+1;j++)//”gŒ`‚Ìƒs[ƒN‚ÌƒTƒ“ƒvƒ‹ˆÊ’u‚ğŒŸo
+		for(j = 0;j < T0*2+1;j++)//æ³¢å½¢ã®ãƒ”ãƒ¼ã‚¯ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã‚’æ¤œå‡º
 		{
 			if(fabs(tmpWav[j]) > peak)
 			{
@@ -278,13 +277,13 @@ void getWedgeList(double *x, int xLen, int vuvNum, int *stList, int *edList, int
 				peakIndex = j;
 			}
 		}
-//		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center+1)*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//“‡‚Ì’†‰›‚ÌƒtƒŒ[ƒ€‚Ìƒs[ƒN‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
-		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center  )*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//“‡‚Ì’†‰›‚ÌƒtƒŒ[ƒ€‚Ìƒs[ƒN‚ÌƒTƒ“ƒvƒ‹ˆÊ’u
+//		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center+1)*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//å³¶ã®ä¸­å¤®ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ¼ã‚¯ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
+		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center  )*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//å³¶ã®ä¸­å¤®ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ¼ã‚¯ã®ã‚µãƒ³ãƒ—ãƒ«ä½ç½®
 	}
 	free(tmpWav);
 }
 
-// PLATINUM Version 0.0.4. ‹°‚ç‚­‚±‚Ìd—l‚ÅŠm’è‚Å‚·D
+// PLATINUM Version 0.0.4. æã‚‰ãã“ã®ä»•æ§˜ã§ç¢ºå®šã§ã™ï¼
 // Aperiodicity estimation based on PLATINUM
 
 void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0, 
@@ -302,7 +301,7 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	{
 		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;
 	}
-	vuvNum+=vuvNum-1; // “‡”‚Ì’²® (—Lº“‡‚Æ–³º“‡)
+	vuvNum+=vuvNum-1; // å³¶æ•°ã®èª¿æ•´ (æœ‰å£°å³¶ã¨ç„¡å£°å³¶)
 	if(f0[0] == 0) vuvNum++;
 	if(f0[tLen-1] == 0) vuvNum++;
 
@@ -347,7 +346,7 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 
 	int *wedgeList;
 	wedgeList = (int *)malloc(sizeof(int) * vuvNum);
-	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//“‡’†‰›‚Ìƒs[ƒNˆÊ’u‚ğæ“¾
+	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//å³¶ä¸­å¤®ã®ãƒ”ãƒ¼ã‚¯ä½ç½®ã‚’å–å¾—
 
 	double *signalTime, *f0interpolatedRaw, *totalPhase;
 	double *fixedF0;
@@ -356,16 +355,16 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	f0interpolatedRaw	= (double *)malloc(sizeof(double) * xLen);
 	totalPhase			= (double *)malloc(sizeof(double) * xLen);
 
-	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0‚ª0‚È‚çƒfƒtƒHƒ‹ƒg‚É•â³
-	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //ƒTƒ“ƒvƒ‹ˆÊ’u‚Ì
-	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//ŠeƒTƒ“ƒvƒ‹‚ÌF0
-	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //ŠeƒTƒ“ƒvƒ‹‚ÌˆÊ‘Š
+	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0ãŒ0ãªã‚‰ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã«è£œæ­£
+	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //ã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã®æ™‚åˆ»
+	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//å„ã‚µãƒ³ãƒ—ãƒ«ã®F0
+	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //å„ã‚µãƒ³ãƒ—ãƒ«ã®ä½ç›¸
 	for(i = 1;i < xLen;i++) totalPhase[i] = totalPhase[i-1] + f0interpolatedRaw[i]*2*PI/(double)fs;
 
 	double *pulseLocations;
 	pulseLocations		= (double *)malloc(sizeof(double) * xLen);
 	int pCount;
-	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList, edList, fs, framePeriod, wedgeList, pulseLocations);//ˆÊ‘Š‚ª‘å‚«‚­“®‚­ƒTƒ“ƒvƒ‹ˆÊ’u‚Ì
+	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList, edList, fs, framePeriod, wedgeList, pulseLocations);//ä½ç›¸ãŒå¤§ããå‹•ãã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã®æ™‚åˆ»
 
 	double *tmpResidualSpec;
 	tmpResidualSpec = (double *)malloc(sizeof(double) * fftl);
@@ -374,8 +373,8 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	for(j = 0;j < fftl/2;j++) residualSpecgram[0][j] = 0.0;
 	for(i = 1;i < tLen;i++)
 	{
-		currentF0 = f0[i] <= FLOOR_F0 ? DEFAULT_F0 : f0[i];  //ƒtƒŒ[ƒ€‚ÌF0 ‰ºŒÀ‚È‚çƒfƒtƒHƒ‹ƒg‚É•â³
-		getOneFrameResidualSignal(x, xLen, fs, i, framePeriod/1000.0, currentF0, fftl, pulseLocations, pCount, //Å‚à‹ß‚¢ƒpƒ‹ƒXH‘OŒã1üŠú•ª‚Ì”gŒ`‚É‘‹‚ğ‚©‚¯‚½‚à‚Ì‚ğæ“¾
+		currentF0 = f0[i] <= FLOOR_F0 ? DEFAULT_F0 : f0[i];  //ãƒ•ãƒ¬ãƒ¼ãƒ ã®F0 ä¸‹é™ãªã‚‰ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã«è£œæ­£
+		getOneFrameResidualSignal(x, xLen, fs, i, framePeriod/1000.0, currentF0, fftl, pulseLocations, pCount, //æœ€ã‚‚è¿‘ã„ãƒ‘ãƒ«ã‚¹ï¼Ÿå‰å¾Œ1å‘¨æœŸåˆ†ã®æ³¢å½¢ã«çª“ã‚’ã‹ã‘ãŸã‚‚ã®ã‚’å–å¾—
 						tmpResidualSpec);
 		for(j = 0;j < fftl/2;j++) residualSpecgram[i][j] = tmpResidualSpec[j];
 	}
@@ -389,10 +388,10 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	return;
 }
 
-//residualSpecgram ”gŒ`‚ÌƒRƒs[‚ª“ü‚éBƒƒ‚ƒŠ‚ğŠm•Û‚¹‚¸‚É“n‚·B‚±‚ÌŠÖ”‚É‚æ‚è•K—v‚Èƒƒ‚ƒŠ‚ªŠm•Û‚³‚ê‚éB
-//residualSpecgramLength ”gŒ`‚Ì’·‚³‚ª“ü‚éBƒƒ‚ƒŠ‚ğŠm•Û‚¹‚¸‚É“n‚·B‚±‚ÌŠÖ”‚É‚æ‚è•K—v‚Èƒƒ‚ƒŠ‚ªŠm•Û‚³‚ê‚éB
-//residualSpecgramIndex@ŠeƒtƒŒ[ƒ€‚Ì”gŒ`‚ğw’è‚·‚éƒCƒ“ƒfƒbƒNƒX‚ª“ü‚éB
-//–ß‚è’l”gŒ`‚Ì”(pCount)
+//residualSpecgram æ³¢å½¢ã®ã‚³ãƒ”ãƒ¼ãŒå…¥ã‚‹ã€‚ãƒ¡ãƒ¢ãƒªã‚’ç¢ºä¿ã›ãšã«æ¸¡ã™ã€‚ã“ã®é–¢æ•°ã«ã‚ˆã‚Šå¿…è¦ãªãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã•ã‚Œã‚‹ã€‚
+//residualSpecgramLength æ³¢å½¢ã®é•·ã•ãŒå…¥ã‚‹ã€‚ãƒ¡ãƒ¢ãƒªã‚’ç¢ºä¿ã›ãšã«æ¸¡ã™ã€‚ã“ã®é–¢æ•°ã«ã‚ˆã‚Šå¿…è¦ãªãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã•ã‚Œã‚‹ã€‚
+//residualSpecgramIndexã€€å„ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ³¢å½¢ã‚’æŒ‡å®šã™ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒå…¥ã‚‹ã€‚
+//æˆ»ã‚Šå€¤æ³¢å½¢ã®æ•°(pCount)
 int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0, 
 		 double ***residualSpecgram, int **residualSpecgramLength, int *residualSpecgramIndex)
 {
@@ -407,12 +406,12 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	vuvNum = 1;	//tn_fuds
 	for(i = 1;i < tLen;i++)
 	{
-		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;	//–³º¨—Lº
-		if(f0[i]==0.0 && f0[i-1]!=0.0) vuvNum++;	//—Lº¨–³º  tn_fnds
+		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;	//ç„¡å£°â†’æœ‰å£°
+		if(f0[i]==0.0 && f0[i-1]!=0.0) vuvNum++;	//æœ‰å£°â†’ç„¡å£°  tn_fnds
 	}
-//	vuvNum+=vuvNum-1; // “‡”‚Ì’²® (—Lº“‡‚Æ–³º“‡)  tn_fnds ƒRƒƒ“ƒgƒAƒEƒg
-//	if(f0[0] == 0) vuvNum++;  tn_fnds ƒRƒƒ“ƒgƒAƒEƒg
-//	if(f0[tLen-1] == 0) vuvNum++;  tn_fnds ƒRƒƒ“ƒgƒAƒEƒg
+//	vuvNum+=vuvNum-1; // å³¶æ•°ã®èª¿æ•´ (æœ‰å£°å³¶ã¨ç„¡å£°å³¶)  tn_fnds ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
+//	if(f0[0] == 0) vuvNum++;  tn_fnds ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
+//	if(f0[tLen-1] == 0) vuvNum++;  tn_fnds ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
 
 	int stCount, edCount;
 	int *stList, *edList;
@@ -423,11 +422,11 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	stList[0] = 0;
 	stCount = 1;
 	index = 1;
-	if(f0[0] != 0)	//—Lº‚©‚çn‚Ü‚éê‡
+	if(f0[0] != 0)	//æœ‰å£°ã‹ã‚‰å§‹ã¾ã‚‹å ´åˆ
 	{
 		for(i = 1;i < tLen;i++)
 		{
-			if(f0[i]==0 && f0[i-1]!=0)	//—Lº¨–³º
+			if(f0[i]==0 && f0[i-1]!=0)	//æœ‰å£°â†’ç„¡å£°
 			{
 				edList[0] = i-1;
 				edCount++;
@@ -443,12 +442,12 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	edList[vuvNum-1] = tLen-1;
 	for(i = index;i < tLen;i++)
 	{
-		if(f0[i]!=0.0 && f0[i-1]==0.0) //–³º¨—Lº
+		if(f0[i]!=0.0 && f0[i-1]==0.0) //ç„¡å£°â†’æœ‰å£°
 		{
 			edList[edCount++] = i-1;
 			stList[stCount++] = i;
 		}
-		if(f0[i]==0.0 && f0[i-1]!=0.0) //—Lº¨–³º
+		if(f0[i]==0.0 && f0[i-1]!=0.0) //æœ‰å£°â†’ç„¡å£°
 		{
 			edList[edCount++] = i-1;
 			stList[stCount++] = i;
@@ -457,7 +456,7 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 
 	int *wedgeList;
 	wedgeList = (int *)malloc(sizeof(int) * vuvNum);
-	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//“‡’†‰›‚Ìƒs[ƒNˆÊ’u‚ğæ“¾
+	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//å³¶ä¸­å¤®ã®ãƒ”ãƒ¼ã‚¯ä½ç½®ã‚’å–å¾—
 
 	double *signalTime, *f0interpolatedRaw, *totalPhase;
 	double *fixedF0;
@@ -466,22 +465,22 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	f0interpolatedRaw	= (double *)malloc(sizeof(double) * xLen);
 	totalPhase			= (double *)malloc(sizeof(double) * xLen);
 
-	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0‚ª0‚È‚çƒfƒtƒHƒ‹ƒg‚É•â³
-	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //ƒTƒ“ƒvƒ‹ˆÊ’u‚Ì
-	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//ŠeƒTƒ“ƒvƒ‹‚ÌF0
-	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //ŠeƒTƒ“ƒvƒ‹‚ÌˆÊ‘Š
+	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0ãŒ0ãªã‚‰ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã«è£œæ­£
+	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //ã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã®æ™‚åˆ»
+	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//å„ã‚µãƒ³ãƒ—ãƒ«ã®F0
+	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //å„ã‚µãƒ³ãƒ—ãƒ«ã®ä½ç›¸
 	for(i = 1;i < xLen;i++) totalPhase[i] = totalPhase[i-1] + f0interpolatedRaw[i]*2*PI/(double)fs;
 
 	double *pulseLocations;
 	pulseLocations		= (double *)malloc(sizeof(double) * xLen);
 	int pCount;
 	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList,
-				edList, fs, framePeriod, wedgeList, pulseLocations);//ˆÊ‘Š‚ª‘å‚«‚­“®‚­ƒTƒ“ƒvƒ‹ˆÊ’u‚Ì
+				edList, fs, framePeriod, wedgeList, pulseLocations);//ä½ç›¸ãŒå¤§ããå‹•ãã‚µãƒ³ãƒ—ãƒ«ä½ç½®ã®æ™‚åˆ»
 
-//tn_fndsƒfƒoƒbƒO
+//tn_fndsãƒ‡ãƒãƒƒã‚°
 //zeroXToFile(x, xLen, f0interpolatedRaw, totalPhase, pCount, pulseLocations, fs, vuvNum, wedgeList);
 
-	pCount++;//’·‚³‚O‚Ìƒ_ƒ~[ƒpƒ‹ƒX‚ğ’Ç‰Á
+	pCount++;//é•·ã•ï¼ã®ãƒ€ãƒŸãƒ¼ãƒ‘ãƒ«ã‚¹ã‚’è¿½åŠ 
 
 	*residualSpecgram	= (double **)malloc(sizeof(double *) * pCount);
 	for(i = 0;i < pCount;i++) (*residualSpecgram)[i] = (double *)malloc(sizeof(double) * fftl);
