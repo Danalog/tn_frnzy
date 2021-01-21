@@ -1,5 +1,7 @@
 // wavread
 
+#define NOMINMAX
+
 #include <windows.h>
 #include <math.h>
 #include <stdio.h>
@@ -117,8 +119,8 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	}
 
 	int st, ed;
-	st = max(0, min(*waveLength-1, (int)((*offset-100) * *fs / 1000))); 
-	ed = max(0, min(*waveLength-1, *waveLength - (int)(max(0, *endbr - 100) * *fs / 1000)));
+	// st = max(0, min(*waveLength-1, (int)((*offset-100) * *fs / 1000))); 
+	// ed = max(0, min(*waveLength-1, *waveLength - (int)(max(0, *endbr - 100) * *fs / 1000)));
 	*endbr = (ed*1000 / *fs) - ((*waveLength * 1000 / *fs) - *endbr);
 	*offset = *offset - (st*1000 / *fs);
 	*waveLength = (ed - st + 1);

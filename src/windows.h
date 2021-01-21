@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#define min(a,b) (((a)<(b))?(a):(b))
-#define max(a,b) (((a)>(b))?(a):(b))
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
 
 #define DWORD uint32_t
 

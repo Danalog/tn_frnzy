@@ -4,14 +4,15 @@
 -----------------------------------------------------
 Sound-Analysis Synthesis WORLD by M. Morise          |
                                                      |
-FFTW is used, and must be installed separately       |
+In previous versions, fftw was not installed, but I  |
+have install it for user simplicity                  |
 -----------------------------------------------------
 */
 
 // Currently known bugs
 // decimateForF0 : Error just after the start and about 4 samples before the end.
 //#include <fftsg.h>
-#include <fftw3.h>
+#include "fftw/fftw3.h"
 //#include <fft.h>
 
 #include <stdlib.h>
