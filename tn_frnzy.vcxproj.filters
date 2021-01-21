@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\fftw">
+      <UniqueIdentifier>{460fe02f-da13-4f7f-b80a-d31f11292bbc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dio.cpp">
@@ -53,10 +56,99 @@
     <ClInclude Include="src\world.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\fftw\fftw3.h">
+      <Filter>Source Files\fftw</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Makefile">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="src\fftw\bench.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\benchf.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\benchl.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\COPYING">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\COPYRIGHT">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftw3.f">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftw3.f03">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftw3l.f03">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftw3q.f03">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftwf-wisdom.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftwl-wisdom.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\fftw-wisdom.exe">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3-3.def">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3-3.dll">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3-3.exp">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3f-3.def">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3f-3.dll">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3f-3.exp">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3l-3.def">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3l-3.dll">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\libfftw3l-3.exp">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\NEWS">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\README">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\README-bench">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+    <None Include="src\fftw\README-WINDOWS">
+      <Filter>Source Files\fftw</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="src\fftw\libfftw3-3.lib">
+      <Filter>Source Files\fftw</Filter>
+    </Library>
+    <Library Include="src\fftw\libfftw3f-3.lib">
+      <Filter>Source Files\fftw</Filter>
+    </Library>
+    <Library Include="src\fftw\libfftw3l-3.lib">
+      <Filter>Source Files\fftw</Filter>
+    </Library>
   </ItemGroup>
 </Project>

@@ -88,12 +88,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\conem\Documents\fttw</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\conem\Documents\GitHub\tn_frnzy\src\fftw;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\conem\Documents\fttw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\conem\Documents\GitHub\tn_frnzy\src\fftw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -103,14 +103,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\conem\Documents\GitHub\tn_frnzy\src\fftw;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\conem\Documents\GitHub\tn_frnzy\src\fftw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -153,12 +155,45 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\fft.h" />
+    <ClInclude Include="src\fftw\fftw3.h" />
     <ClInclude Include="src\wavread.h" />
     <ClInclude Include="src\windows.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\fftw\bench.exe" />
+    <None Include="src\fftw\benchf.exe" />
+    <None Include="src\fftw\benchl.exe" />
+    <None Include="src\fftw\COPYING" />
+    <None Include="src\fftw\COPYRIGHT" />
+    <None Include="src\fftw\fftw-wisdom.exe" />
+    <None Include="src\fftw\fftw3.f" />
+    <None Include="src\fftw\fftw3.f03" />
+    <None Include="src\fftw\fftw3l.f03" />
+    <None Include="src\fftw\fftw3q.f03" />
+    <None Include="src\fftw\fftwf-wisdom.exe" />
+    <None Include="src\fftw\fftwl-wisdom.exe" />
+    <None Include="src\fftw\libfftw3-3.def" />
+    <None Include="src\fftw\libfftw3-3.dll">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="src\fftw\libfftw3-3.exp" />
+    <None Include="src\fftw\libfftw3f-3.def" />
+    <None Include="src\fftw\libfftw3f-3.dll" />
+    <None Include="src\fftw\libfftw3f-3.exp" />
+    <None Include="src\fftw\libfftw3l-3.def" />
+    <None Include="src\fftw\libfftw3l-3.dll" />
+    <None Include="src\fftw\libfftw3l-3.exp" />
+    <None Include="src\fftw\NEWS" />
+    <None Include="src\fftw\README" />
+    <None Include="src\fftw\README-bench" />
+    <None Include="src\fftw\README-WINDOWS" />
     <None Include="src\Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="src\fftw\libfftw3-3.lib" />
+    <Library Include="src\fftw\libfftw3f-3.lib" />
+    <Library Include="src\fftw\libfftw3l-3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
