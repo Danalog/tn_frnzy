@@ -9,3 +9,4 @@ See readme.txt for original readme
 
 1/20/2021
 - Translated All Comments
+- Pre-release version v0.0.0 released
