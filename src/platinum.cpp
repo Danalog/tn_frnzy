@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-//tn_fnds デバッグ用
+// tn_frnzy for debugging
 void pulseToFile(int pCount, double *pulseLocations, int *residualSpecgramLength)
 {
 	FILE *file;
@@ -59,17 +59,17 @@ void getOneFrameResidualSignal(double *x, int xLen, int fs, int positionIndex, d
 	double tmpValue = 100000.0; // safeGuard
 	for(i = 0;i < pCount;i++)
 	{
-		tmp = fabs(pulseLocations[i] - (double)positionIndex*framePeriod);//フレームに最も近いパルス？を探す
+		tmp = fabs(pulseLocations[i] - (double)positionIndex*framePeriod); // Pulse closest to frame? Find it
 		if(tmp < tmpValue)
 		{
 			tmpValue = tmp;
 			tmpIndex = i;
 		}
-		index = 1+(int)(0.5+pulseLocations[tmpIndex]*fs);//最も近いパルス？のサンプル位置?
+		index = 1+(int)(0.5+pulseLocations[tmpIndex]*fs); // Closest pulse? sample position?
 	}
 
-	T0 = (double)fs/f0;//１周期のサンプル数（実数）
-	wLen = (int)(0.5 + T0*2.0);//2周期のサンプル数
+	T0 = (double)fs/f0; // Number of samples per cycle (real number)
+	wLen = (int)(0.5 + T0*2.0); // Number of samples in 2 cycles
 
 	if(wLen+index-(int)(0.5+T0) >= xLen)
 	{
@@ -79,9 +79,9 @@ void getOneFrameResidualSignal(double *x, int xLen, int fs, int positionIndex, d
 
 	for(i = 0;i < wLen;i++)
 	{
-		tmpIndex = i+index - (int)(0.5+T0);//最も近いパルス？の前後1周期分のインデックス
+		tmpIndex = i+index - (int)(0.5+T0); // Nearest pulse? Index of one cycle before and after it
 		residualSpec[i] = x[min( xLen-1, max(0, tmpIndex))] * 
-		(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//窓を掛ける
+		(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1)))); // Hang Window
 	}
 	for(;i < fftl/2;i++)
 	{
@@ -101,10 +101,10 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 	residualSpecgramLength[pCount-1] = 0;
 	for(j = 0;j < pCount-1; j++)
 	{
-		//サンプル位置を計算
+		// Calculate sample position
 		index = 1+(int)(0.5+pulseLocations[j]*fs);
 
-		//f0を計算
+		// Calculate F0
 		f0fi = pulseLocations[j] / (double)framePeriod;
 		f0si = (int)f0fi;
 		f0ei = f0si + 1;
@@ -112,12 +112,12 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 		ff0 = (f0[f0si] == 0.0 || f0[f0ei] == 0.0)? DEFAULT_F0:
 				(f0[f0si] == 0)? f0[f0ei]:            
 				(f0[f0ei] == 0)? f0[f0si]:  
-								 f0[f0si] + (f0[f0ei] - f0[f0si]) * (double)(f0fi - f0si);//近くのフレームの前後から直線補完
+								 f0[f0si] + (f0[f0ei] - f0[f0si]) * (double)(f0fi - f0si); // Linear completion from the from and back of the frame
 		
 
 
-		T0 = (double)fs/ff0;//１周期のサンプル数（実数）
-		wLen = (int)(0.5 + T0*2.0);//2周期のサンプル数
+		T0 = (double)fs/ff0; // Number of samples per cycle
+		wLen = (int)(0.5 + T0*2.0);// Number in samples in 2 cycles
 
 		if(wLen+index-(int)(0.5+T0) >= xLen)
 		{
@@ -128,10 +128,10 @@ void getOnePulseResidualSignal(double *x, int xLen, int fs, double framePeriod, 
 
 		for(i = 0;i < residualSpecgramLength[j];i++)
 		{
-			tmpIndex = i+index - (int)(0.5+T0);//最も近いパルス？の前後1周期分のインデックス
+			tmpIndex = i+index - (int)(0.5+T0); // Nearest pulse? Index one sample before and after it
 			residualSpecgram[j][i] = x[min( xLen-1, max(0, tmpIndex))];
 //			residualSpecgram[j][i] = x[min( xLen-1, max(0, tmpIndex))] * 
-//				(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1))));//窓を掛ける
+//				(0.5 - 0.5*cos(2.0*PI*(double)(i+1)/((double)(wLen+1)))); // Hang Window
 		}
 		for(i =  residualSpecgramLength[j]; i < fftl; i++) residualSpecgram[j][i] = 0.0;
 	}
@@ -145,7 +145,7 @@ void PulseResidualWindow(double **residualSpecgram, int *residualSpecgramLength,
 		for(j = 0;j < residualSpecgramLength[i]; j++)
 		{
 			residualSpecgram[i][j] = residualSpecgram[i][j] * 
-				(0.5 - 0.5*cos(2.0*PI*(double)(j+1)/((double)(residualSpecgramLength[i]+1))));//窓を掛ける
+				(0.5 - 0.5*cos(2.0*PI*(double)(j+1)/((double)(residualSpecgramLength[i]+1)))); // Hang Window
 		}
 	}
 }
@@ -163,14 +163,14 @@ void getFrameResidualIndex(int tLen, int pCount, double framePeriod, double *pul
 		tmpIndex = pCount-1;
 		for(i = 0;i < pCount-1;i++)
 		{
-			tmp = fabs(pulseLocations[i] +  - (double)j*framePeriod);//フレームに最も近いパルス？を探す
+			tmp = fabs(pulseLocations[i] +  - (double)j*framePeriod); // Pulse closest to the frame? Find it
 			if(tmp < tmpValue)
 			{
 				tmpValue = tmp;
 				tmpIndex = i;
 			}
 		}
-		residualSpecgramIndex[j] = tmpIndex;//最も近いパルス？のインデックス
+		residualSpecgramIndex[j] = tmpIndex; // Closest pulse? Index it
 	}
 }
 
@@ -184,9 +184,9 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 	for(i = 0;i < vuvNum;i++)
 	{
 		int stIndex, edIndex; // sample
-		// 0点が含まれないように外す
-		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //島の先頭のサンプル位置
-		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//島の末尾のサンプル位置
+		// Remove so that no zeroes are included.
+		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  // Position of sample point at the beginning of sample
+		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1); // Position of sample point at the end of sample
 
 		wedgePhase = totalPhase[wedgeList[i]];
 		for(j = stIndex;j < edIndex-1;j++)
@@ -214,14 +214,14 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 	double tmp;
 	for(i = 0;i < vuvNum;i++)
 	{
-		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  //島の先頭のサンプル位置
-		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1);//島の末尾のサンプル位置
+		stIndex = max(0, (int)((double)fs*(stList[i])*framePeriod/1000.0));  // Position of sample point at the beginning of the sample
+		edIndex = min(xLen-1, (int)((double)fs*(edList[i]+1)*framePeriod/1000.0+0.5) -1); // Position of sample point at the end of sample
 
 		tmp = totalPhase[wedgeList[i]];
 
 		for(j = stIndex;j < edIndex;j++){
-//			basePhase[j] = fmod(totalPhase[j+1]-tmp, 2*PI) - fmod(totalPhase[j]-tmp, 2*PI);//フレーム間の位相差？
-			basePhase[j] = fmod(totalPhase[j]-tmp+PI*0.5, 2*PI);  //tn_fnds 各サンプルの位相を補正
+//			basePhase[j] = fmod(totalPhase[j+1]-tmp, 2*PI) - fmod(totalPhase[j]-tmp, 2*PI); // Phase difference between frames?
+			basePhase[j] = fmod(totalPhase[j]-tmp+PI*0.5, 2*PI);  // Corrects the phase of each sample
 		}
 
 //		basePhase[0] = 0; numberOfLocation = 0;
@@ -229,12 +229,12 @@ int getPulseLocations(double *x, int xLen, double *totalPhase, int vuvNum, int *
 		for(j = stIndex;j < edIndex-1;j++) 
 		{
 //			if(abs(basePhase[j]) > PI/2.0)
-			if(basePhase[j+1] < basePhase[j])  //位相が2*PIを超えて0に戻った
+			if(basePhase[j+1] < basePhase[j])  // Phase has exceeded 2*PI and returned to zero.
 			{
-				tmpPulseLocations[numberOfLocation++] = (double)j/(double)fs;//ゼロクロス位置の時刻
+				tmpPulseLocations[numberOfLocation++] = (double)j/(double)fs; // Time of zero-crossing position
 			}
 		}
-		for(j = 0;j < numberOfLocation;j++) pulseLocations[pCount++] = tmpPulseLocations[j];//
+		for(j = 0;j < numberOfLocation;j++) pulseLocations[pCount++] = tmpPulseLocations[j];
 	}
 
 	free(basePhase);
@@ -256,20 +256,20 @@ void getWedgeList(double *x, int xLen, int vuvNum, int *stList, int *edList, int
 
 	for(i = 0;i < vuvNum;i++)
 	{
-		center		= (int)((stList[i]+edList[i]+1)/2);           //島の中央のフレーム位置
-		currentF0	= f0[center] == 0.0 ? DEFAULT_F0 : f0[center];//島の中央のF0 ノイズ領域の場合はデフォルト
-		T0			= (int)((fs / currentF0)+0.5);                //島の中央のF0の１周期のサンプル数
-//		peakIndex = (int)(((1+center)*framePeriod*fs/1000.0)+0.5);//島の中央のサンプル位置
-		peakIndex = (int)(((  center)*framePeriod*fs/1000.0)+0.5);//島の中央のサンプル位置
+		center		= (int)((stList[i]+edList[i]+1)/2);            // Frame position in the center of the sample point
+		currentF0	= f0[center] == 0.0 ? DEFAULT_F0 : f0[center]; // Default for F0 noise region in the center of the sample point
+		T0			= (int)((fs / currentF0)+0.5);                 // Number of samples in one cycle of F0 in the center of the sample point
+//		peakIndex = (int)(((1+center)*framePeriod*fs/1000.0)+0.5); // Sample point location in the middle of the sample
+		peakIndex = (int)(((  center)*framePeriod*fs/1000.0)+0.5); // Sample point location in the middle of the sample
 //		for(j = 0;j < T0*2;j++)
 		for(j = 0;j < T0*2+1;j++)
 		{
 //			tmpWav[j] = x[peakIndex-T0+j-1];
-			tmpWav[j] = x[max(0, min(xLen-1, peakIndex-T0+j-1))];//島の中央の２周期分のデータ
+			tmpWav[j] = x[max(0, min(xLen-1, peakIndex-T0+j-1))]; // Data for two cycles in the center of the sample point
 		}
 		peak = 0.0;
 		peakIndex = 0;
-		for(j = 0;j < T0*2+1;j++)//波形のピークのサンプル位置を検出
+		for(j = 0;j < T0*2+1;j++) // Detect the sample position of the waveform peak
 		{
 			if(fabs(tmpWav[j]) > peak)
 			{
@@ -277,13 +277,13 @@ void getWedgeList(double *x, int xLen, int vuvNum, int *stList, int *edList, int
 				peakIndex = j;
 			}
 		}
-//		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center+1)*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//島の中央のフレームのピークのサンプル位置
-		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center  )*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));//島の中央のフレームのピークのサンプル位置
+//		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center+1)*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));// Sample position of the peak in the middle frame of the island
+		wedgeList[i] = max(0, min(xLen-1, (int)(0.5 + ((center  )*framePeriod*fs/1000.0)-T0+peakIndex+1.0) - 1));// Sample position of the peak in the middle frame of the island
 	}
 	free(tmpWav);
 }
 
-// PLATINUM Version 0.0.4. 恐らくこの仕様で確定です．
+// PLATINUM Version 0.0.4
 // Aperiodicity estimation based on PLATINUM
 
 void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0, 
@@ -301,7 +301,7 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	{
 		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;
 	}
-	vuvNum+=vuvNum-1; // 島数の調整 (有声島と無声島)
+	vuvNum+=vuvNum-1; // Adjust the number of sample points (voiced and unvoiced)
 	if(f0[0] == 0) vuvNum++;
 	if(f0[tLen-1] == 0) vuvNum++;
 
@@ -346,7 +346,7 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 
 	int *wedgeList;
 	wedgeList = (int *)malloc(sizeof(int) * vuvNum);
-	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//島中央のピーク位置を取得
+	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList); // Get peak position in middle of sample point
 
 	double *signalTime, *f0interpolatedRaw, *totalPhase;
 	double *fixedF0;
@@ -355,16 +355,16 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	f0interpolatedRaw	= (double *)malloc(sizeof(double) * xLen);
 	totalPhase			= (double *)malloc(sizeof(double) * xLen);
 
-	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0が0ならデフォルトに補正
-	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //サンプル位置の時刻
-	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//各サンプルのF0
-	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //各サンプルの位相
+	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i];  // If F0 is 0, correct to default
+	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;        // Time of sample location
+	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw); // F0 for each sample
+	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                  // Phase of each sample
 	for(i = 1;i < xLen;i++) totalPhase[i] = totalPhase[i-1] + f0interpolatedRaw[i]*2*PI/(double)fs;
 
 	double *pulseLocations;
 	pulseLocations		= (double *)malloc(sizeof(double) * xLen);
 	int pCount;
-	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList, edList, fs, framePeriod, wedgeList, pulseLocations);//位相が大きく動くサンプル位置の時刻
+	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList, edList, fs, framePeriod, wedgeList, pulseLocations); // Time of the sample position where the phase moves significantly
 
 	double *tmpResidualSpec;
 	tmpResidualSpec = (double *)malloc(sizeof(double) * fftl);
@@ -373,8 +373,8 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	for(j = 0;j < fftl/2;j++) residualSpecgram[0][j] = 0.0;
 	for(i = 1;i < tLen;i++)
 	{
-		currentF0 = f0[i] <= FLOOR_F0 ? DEFAULT_F0 : f0[i];  //フレームのF0 下限ならデフォルトに補正
-		getOneFrameResidualSignal(x, xLen, fs, i, framePeriod/1000.0, currentF0, fftl, pulseLocations, pCount, //最も近いパルス？前後1周期分の波形に窓をかけたものを取得
+		currentF0 = f0[i] <= FLOOR_F0 ? DEFAULT_F0 : f0[i];  // If F0 is at lower limit, correct to default
+		getOneFrameResidualSignal(x, xLen, fs, i, framePeriod/1000.0, currentF0, fftl, pulseLocations, pCount, // Nearest pulse? Get windowed waveforms for one cycle before and after
 						tmpResidualSpec);
 		for(j = 0;j < fftl/2;j++) residualSpecgram[i][j] = tmpResidualSpec[j];
 	}
@@ -388,10 +388,10 @@ void pt100(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	return;
 }
 
-//residualSpecgram 波形のコピーが入る。メモリを確保せずに渡す。この関数により必要なメモリが確保される。
-//residualSpecgramLength 波形の長さが入る。メモリを確保せずに渡す。この関数により必要なメモリが確保される。
-//residualSpecgramIndex　各フレームの波形を指定するインデックスが入る。
-//戻り値波形の数(pCount)
+// residualSpecgram Contains a copy of the waveform. Passes memory without allocating it. This function allocates the necessary memory.
+// residualSpecgramLength Contains the length of the waveform. Passes memory without allocating it. This function allocates the necessary memory.
+// residualSpecgramIndex Contains an index that specifies the waveform for each frame.
+// Number of waveforms to return (pCount)
 int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0, 
 		 double ***residualSpecgram, int **residualSpecgramLength, int *residualSpecgramIndex)
 {
@@ -406,12 +406,12 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	vuvNum = 1;	//tn_fuds
 	for(i = 1;i < tLen;i++)
 	{
-		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;	//無声→有声
-		if(f0[i]==0.0 && f0[i-1]!=0.0) vuvNum++;	//有声→無声  tn_fnds
+		if(f0[i]!=0.0 && f0[i-1]==0.0) vuvNum++;	// No Sound -> Sound
+		if(f0[i]==0.0 && f0[i-1]!=0.0) vuvNum++;	// No Sound -> Sound
 	}
-//	vuvNum+=vuvNum-1; // 島数の調整 (有声島と無声島)  tn_fnds コメントアウト
-//	if(f0[0] == 0) vuvNum++;  tn_fnds コメントアウト
-//	if(f0[tLen-1] == 0) vuvNum++;  tn_fnds コメントアウト
+//	vuvNum+=vuvNum-1; // Adjust number of sample points (voiced and unvoiced) tn_fnds commented out
+//	if(f0[0] == 0) vuvNum++;  tn_fnds commented out
+//	if(f0[tLen-1] == 0) vuvNum++;  tn_fnds commented out
 
 	int stCount, edCount;
 	int *stList, *edList;
@@ -422,11 +422,11 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	stList[0] = 0;
 	stCount = 1;
 	index = 1;
-	if(f0[0] != 0)	//有声から始まる場合
+	if(f0[0] != 0)	// If it begins voiced
 	{
 		for(i = 1;i < tLen;i++)
 		{
-			if(f0[i]==0 && f0[i-1]!=0)	//有声→無声
+			if(f0[i]==0 && f0[i-1]!=0)	// Sound -> No Sound
 			{
 				edList[0] = i-1;
 				edCount++;
@@ -434,7 +434,7 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 				stCount++;
 				index = i;
 
-				break;	//tn_fnds
+				break;	// tn_fnds
 			}
 		}
 	}
@@ -442,12 +442,12 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	edList[vuvNum-1] = tLen-1;
 	for(i = index;i < tLen;i++)
 	{
-		if(f0[i]!=0.0 && f0[i-1]==0.0) //無声→有声
+		if(f0[i]!=0.0 && f0[i-1]==0.0) // No Sound -> Sound
 		{
 			edList[edCount++] = i-1;
 			stList[stCount++] = i;
 		}
-		if(f0[i]==0.0 && f0[i-1]!=0.0) //有声→無声
+		if(f0[i]==0.0 && f0[i-1]!=0.0) // Sound -> No Sound
 		{
 			edList[edCount++] = i-1;
 			stList[stCount++] = i;
@@ -456,7 +456,7 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 
 	int *wedgeList;
 	wedgeList = (int *)malloc(sizeof(int) * vuvNum);
-	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList);//島中央のピーク位置を取得
+	getWedgeList(x, xLen, vuvNum, stList, edList, fs, framePeriod, f0, wedgeList); // Get peak position in middle of sample point
 
 	double *signalTime, *f0interpolatedRaw, *totalPhase;
 	double *fixedF0;
@@ -465,22 +465,22 @@ int pt101(double *x, int xLen, int fs, double *timeAxis, double *f0,
 	f0interpolatedRaw	= (double *)malloc(sizeof(double) * xLen);
 	totalPhase			= (double *)malloc(sizeof(double) * xLen);
 
-	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i]; //F0が0ならデフォルトに補正
-	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;       //サンプル位置の時刻
-	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw);//各サンプルのF0
-	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                 //各サンプルの位相
+	for(i = 0;i < tLen;i++) fixedF0[i] = f0[i] == 0 ? DEFAULT_F0 : f0[i];  // If F0 is 0, correct to default
+	for(i = 0;i < xLen;i++) signalTime[i] = (double)i / (double)fs;        // Time at sample location
+	interp1(timeAxis, fixedF0, tLen, signalTime, xLen, f0interpolatedRaw); // F0 for each sample
+	totalPhase[0] = f0interpolatedRaw[0]*2*PI/(double)fs;                  // Phase of each sample
 	for(i = 1;i < xLen;i++) totalPhase[i] = totalPhase[i-1] + f0interpolatedRaw[i]*2*PI/(double)fs;
 
 	double *pulseLocations;
 	pulseLocations		= (double *)malloc(sizeof(double) * xLen);
 	int pCount;
 	pCount = getPulseLocations(x, xLen, totalPhase, vuvNum, stList,
-				edList, fs, framePeriod, wedgeList, pulseLocations);//位相が大きく動くサンプル位置の時刻
+				edList, fs, framePeriod, wedgeList, pulseLocations); // Time of the sample position where the phase moves significantly
 
-//tn_fndsデバッグ
+// tn_frnzy debugging!
 //zeroXToFile(x, xLen, f0interpolatedRaw, totalPhase, pCount, pulseLocations, fs, vuvNum, wedgeList);
 
-	pCount++;//長さ０のダミーパルスを追加
+	pCount++; // Add dummy pulse of length 0
 
 	*residualSpecgram	= (double **)malloc(sizeof(double *) * pCount);
 	for(i = 0;i < pCount;i++) (*residualSpecgram)[i] = (double *)malloc(sizeof(double) * fftl);

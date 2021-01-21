@@ -25,52 +25,52 @@ int getSamplesForDIO(int fs, int xLen, double framePeriod)
 	return (int)((double)xLen / (double)fs / (framePeriod/1000.0) ) + 1;
 }
 
-// DIO (Distributed Inline filter Operation) によるF0推定
-// x	: 入力信号
-// xLen : 信号長 [sample].
-// f0	: 推定結果
+// DIO (Distributed Inline filter Operation) - F0 Estimation
+// x	: Input Signal
+// xLen : Signal Length [sample]
+// f0	: Definition of Results
 void dio(double *x, int xLen, int fs, double framePeriod, 
 		 double *timeAxis, double *f0)
 {
 	int i,j;
 
-	// 初期条件 (改良したい人はここから頑張って)
+	// Initialize Parameters (if you want to improve F0 estimation, start here)
 	double f0Floor = 80;
 	double f0Ceil = 640;
 	double channelsInOctave = 2;
 	double targetFs = 4000;
 
-	// 基礎パラメタの計算
+	// Calculation of basic parameters
 	int decimationRatio = (int)(fs/targetFs);
 	double fss = (double)fs/(double)decimationRatio;
 	int nBands = (int)(log((double)f0Ceil/(double)f0Floor)/log(2.0) * channelsInOctave);
 
-	// ここも基礎パラメタ
+	// More basic parameters
 	double * boundaryF0List = (double *)malloc(sizeof(double) * (nBands+1));
 	for(i = 0;i <= nBands;i++)
 		boundaryF0List[i] = f0Floor*pow(2.0, i/channelsInOctave);
 
-	// fft Lengthの計算
+	// Calculation of fft length
 	int yLen = (1 + (int)(xLen/decimationRatio));
 	int fftl = (int)pow(2.0, 1.0 + (int)(log((double)yLen + 
 		(double)(4*(int)(1.0 + (double)fs/boundaryF0List[0]/2.0)) ) / log(2.0)));
 	double *y = (double *)malloc(sizeof(double) * fftl);
 	
-	// ダウンサンプリング
+	// Downsampling
 	decimateForF0(x, xLen, y, decimationRatio);
 
-	// 直流成分の除去 y = y - mean(y)
+	// Removal of DC component y = y - mean(y)
 	double meanY = 0.0;
 	for(i = 0;i < yLen;i++)			meanY += y[i];
 	meanY /= (double)yLen;
 	for(i = 0;i < yLen;i++)			y[i] -= meanY;
 	for(i = yLen; i < fftl;i++)		y[i] = 0.0;
 
-	// 中間データの保存用
-	int		tLen; // F0軌跡のサンプル数
+	// Storing intermediate data
+	int		tLen; // Number of samples in F0 trajectory
 	tLen = getSamplesForDIO(fs, xLen, framePeriod); // debug
 	int lengthInMs = 1 + (int)((double)xLen/(double)fs*1000.0);
-	double **stabilityMap, ** f0Map; // f0mapに候補が全て入るので，結果に納得できない場合は，f0Mapを直接操作する．
+	double **stabilityMap, ** f0Map; // Since f0map contains all the candidates, if you are not satisfied with the result, manipulate f0map directly.
 	stabilityMap = (double **)malloc(sizeof(double *) * (nBands+1));
 	f0Map		 = (double **)malloc(sizeof(double *) * (nBands+1));
 	for(i = 0;i <= nBands;i++)
@@ -79,12 +79,12 @@ void dio(double *x, int xLen, int fs, double framePeriod,
 		f0Map[i]		= (double *)malloc(sizeof(double) * tLen);
 	}
 
-	// 波形のスペクトルを事前に計算（ここは高速化の余地有り）
-	fftw_plan			forwardFFT;				// FFTセット
-	fftw_complex		*ySpec;	// スペクトル
+	// Calculate the spectrum of the waveform in advance (there is room for speedup here)
+	fftw_plan			forwardFFT;				// Set FFT
+	fftw_complex		*ySpec;	// Spectral
 	ySpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 	forwardFFT = fftw_plan_dft_r2c_1d(fftl, y, ySpec, FFTW_ESTIMATE);
-	fftw_execute(forwardFFT); // FFTの実行
+	fftw_execute(forwardFFT); // Execute FFT
 
 	// temporary values
 	double *	interpolatedF0;
@@ -95,23 +95,23 @@ void dio(double *x, int xLen, int fs, double framePeriod,
 	for(i = 0;i < tLen;i++)
 		timeAxis[i] = (double)i * framePeriod/1000.0;
 
-	//tn_fnds v0.0.4 FFTWのプランを再利用するため、DIO側でメモリ確保、プランの作成を行う
+	// To reuse FFTW plans, allocate memory and create plans on the DIO side.
 	fftw_destroy_plan(forwardFFT);
 	double *equivalentFIR;
 	equivalentFIR = (double *)malloc(sizeof(double) * fftl);
-//	fftw_plan	forwardFFT;				// FFTセット
+//	fftw_plan	forwardFFT;				// Set FFT
 	fftw_plan	inverseFFT;
-	fftw_complex		*eSpec;	// スペクトル
+	fftw_complex		*eSpec;	// Spectral
 	eSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 	forwardFFT = fftw_plan_dft_r2c_1d(fftl, equivalentFIR, eSpec, FFTW_ESTIMATE);
 	inverseFFT = fftw_plan_dft_c2r_1d(fftl, eSpec, equivalentFIR, FFTW_ESTIMATE);
 
-	// イベントの計算 (4つのゼロ交差．詳しくは論文にて)
+	// Computation of events (4 zero-crossings)
 	for(i = 0;i <= nBands;i++)
 	{
 //		rawEventByDio(boundaryF0List[i], fss, ySpec, yLen, fftl, framePeriod/1000.0, f0Floor, f0Ceil, timeAxis, tLen, 
 //			f0Deviations, interpolatedF0);
-//tn_fnds v0.0.4 FFTWのプランを再利用する
+// Reuse FFTW plan
 		rawEventByDio(boundaryF0List[i], fss, ySpec, yLen, fftl, framePeriod/1000.0, f0Floor, f0Ceil, timeAxis, tLen, 
 			f0Deviations, interpolatedF0, forwardFFT, inverseFFT, equivalentFIR, eSpec);
 		for(j = 0;j < tLen;j++)
@@ -124,11 +124,11 @@ void dio(double *x, int xLen, int fs, double framePeriod,
 	free(equivalentFIR);
 	free(eSpec);
 
-	// ベスト候補の選定 (基本波らしさを使い一意に決める)
+	// Best candidate selection (uniquely determined using basic wave-like properties)
 	double *bestF0;
 //	bestF0 = (double *)malloc(sizeof(double) * (int)((double)xLen / (double)fs / (framePeriod/1000.0) ) + 1);
-	bestF0 = (double *)malloc(sizeof(double) * tLen); // 2010/6/14 修正 (死にたい)
-/* tn_fnds v0.0.4 ベスト候補の選定は全てpostprocessingで行うようにした
+	bestF0 = (double *)malloc(sizeof(double) * tLen); // 2010/6/14 Revised
+/* moved to postproccessing (will remove later)
 	double tmp;
 	for(i = 0;i < tLen;i++)
 	{
@@ -144,12 +144,12 @@ void dio(double *x, int xLen, int fs, double framePeriod,
 		}
 	}
 */
-	// 後処理 (第一候補と候補マップから最適なパスを探す)
+	// Post-processing (find the best path from first choice and candidate maps)
 //	postprocessing(framePeriod/1000.0, f0Floor, nBands+1, xLen, fs, f0Map, bestF0, f0);
-	//tn_fnds v0.0.4 F0補正にstabilityMapを使用するようにした
+	// Use of stability map for F0 correction.
 	postprocessing(framePeriod/1000.0, f0Floor, nBands+1, xLen, fs, f0Map, stabilityMap, bestF0, f0);
 
-	// お片づけ(メモリの開放)
+	// Cleaning up (freeing memory)
 	free(bestF0);
 	free(interpolatedF0);
 	free(f0Deviations);
@@ -167,15 +167,15 @@ void dio(double *x, int xLen, int fs, double framePeriod,
 	free(y);
 }
 
-// イベント数があったか判定
-// longの範囲を超えてしまったので苦肉の策
+// Determine number of events
+// long goes out of range, so I'm struggling
 int checkEvent(int x)
 {
 	if(x > 0) return 1;
 	return 0;
 }
 
-// 後処理（4ステップ）
+// Post-Processing (4 Steps)
 //void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen, int fs, double **f0Map,
 //					double *bestF0, double *f0)
 void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen, int fs, double **f0Map,
@@ -184,10 +184,10 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 	int i, j, k;
 	int voiceRangeMinimum = (int)(0.5 + 1.0/framePeriod/f0Floor);
 	int f0Len = (int)((double)xLen / (double)fs / framePeriod) + 1;
-//	double allowedRange = 0.1; // これは5 msecの基準なのでframePeriodに併せて調整する．
-	double allowedRange = 0.1 * framePeriod/0.005; // これは5 msecの基準なのでframePeriodに併せて調整する．
+//	double allowedRange = 0.1; // This is based on 5 msec, so adjust it according to framePeriod.
+	double allowedRange = 0.1 * framePeriod/0.005; // This is based on 5 msec, so adjust it according to framePeriod.
 
-	//tn_fnds v0.0.4 ベストなF0を抽出（DIO本体からこちらに移動）
+	// Extract the best F0 (moved here from DIO)
 	double tmp;
 	double *bestF0Stab;
 	bestF0Stab = (double *)malloc(sizeof(double) * f0Len);
@@ -207,7 +207,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 		}
 	}
 
-	//tn_fnds v0.0.4 安定性の低いF0を除外
+	// Exclude F0 with low stability
 	int addCount = 0;
 	double addValue = 0.0;
 	for(i = 0;i < f0Len;i++) 
@@ -217,7 +217,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 	addValue = addValue * 2.0 / addCount;
 	for(i = 0;i < f0Len;i++) if(bestF0Stab[i] > addValue) bestF0[i] = 0.0;
 
-	// メモリ節約はできるけど，どうせ少量なのでデバッグのしやすさを優先
+	// You can save memory, but since it's only a small amount anyway, priority is given to ease of debugging.
 	double *f0Base;
 	f0Base = (double *)malloc(sizeof(double) * f0Len);
 	double *f0Step1;
@@ -229,18 +229,18 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 	double *f0Step4;
 	f0Step4 = (double *)malloc(sizeof(double) * f0Len);
 
-	// まずは初期化
+	// Initialize
 	for(i = 0;i < voiceRangeMinimum;i++) f0Base[i] = 0;
 	for(;i < f0Len-voiceRangeMinimum;i++) f0Base[i] = bestF0[i];
 	for(;i < f0Len;i++) f0Base[i] = 0;
 	for(i = 0;i < f0Len;i++) f0Step1[i] = 0.0;
 
-	// 第一のステップ (F0の跳躍防止)
+	// Step 1 - Prevent F0 from jumping
 	for(i = voiceRangeMinimum;i < f0Len;i++)
 		if(fabs((f0Base[i]-f0Base[i-1])/(0.00001+f0Base[i]) ) < allowedRange)
 			f0Step1[i] = f0Base[i];
 
-	// 第二のステップ (無声区間の切り離し)
+	// Step 2 - Detach silent section
 	for(i = 0;i < f0Len;i++) f0Step2[i] = f0Step1[i];
 	for(i = voiceRangeMinimum;i < f0Len;i++)
 	{
@@ -254,7 +254,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 		}
 	}
 
-	// tn_fnds v0.0.4  第二のステップ (無声区間の切り離し)逆方向
+	// Step 2 - Detach silent section in opposite direction
 	for(i = f0Len-1-voiceRangeMinimum;i >= 0;i--)
 	{
 		for(j = 0;j < voiceRangeMinimum;j++)
@@ -267,7 +267,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 		}
 	}
 
-	// 島数の検出
+	// Detect sample points (this could be a mistranslation, but the original kanji used was 島, which i believe is referring to an individual sample point)
 	int *positiveIndex, *negativeIndex;
 	positiveIndex = (int *)malloc(sizeof(int) * f0Len);
 	negativeIndex = (int *)malloc(sizeof(int) * f0Len);
@@ -281,7 +281,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 			positiveIndex[positiveCount++] = i;
 	}
 
-	// ステップ3（前向き補正）
+	// Step 3 - Forward looking correction
 	double refValue1, refValue2, bestError, errorValue;
 	for(i = 0;i < f0Len;i++) f0Step3[i] = f0Step2[i];
 	for(i = 0;i < negativeCount;i++)
@@ -298,7 +298,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 //				errorValue = abs(refValue - f0Map[k][j+1]);
 				errorValue = min(fabs(refValue1 - f0Map[k][j+1]), fabs(refValue2 - f0Map[k][j+1]));
 //				if(errorValue < bestError)
-				if(errorValue < bestError && stabilityMap[k][j+1] < 0.1) //tn_fnds v0.0.4 安定性の低いF0は使用しない
+				if(errorValue < bestError && stabilityMap[k][j+1] < 0.1) // Don't use unstable F0
 				{
 					bestError = errorValue;
 					f0Step3[j+1] = f0Map[k][j+1];
@@ -318,11 +318,11 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 		}
 	}
 
-	// ステップ4（後向き補正）
+	// Step 4 - Backwards looking correction
 	for(i = 0;i < f0Len;i++) f0Step4[i] = f0Step3[i];
 	for(i = positiveCount-1;i >= 0;i--)
 	{
-		for(j = positiveIndex[i]/*+1*/;j > 1;j--) //tn_fnds v0.0.4 
+		for(j = positiveIndex[i]/*+1*/;j > 1;j--)
 		{
 			if(f0Step4[j-1] != 0) break;
 			refValue1 = f0Step4[j]*2 - f0Step4[j-1];
@@ -352,10 +352,10 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 		}
 	}
 
-	// コピー
+	// Copy
 	for(i = 0;i < f0Len;i++) f0[i] = f0Step4[i];
-/* ステップ5は，性能が上がらないので一時的に削除
-	// ステップ5（孤立島の切り離し 2回目）
+/* Temporarily removed, as it did not improve performance
+	// Step 5 - Isolated sample point detatchment, 2nd time
 	int voiceRangeMinimum2 = 2+(int)(voiceRangeMinimum/2);
 	for(i = 0;i < f0Len;i++) f0[i] = f0Step4[i];
 	for(i = voiceRangeMinimum2; i < f0Len-voiceRangeMinimum2;i++)
@@ -375,7 +375,7 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 	}
 */
 
-//候補点と補正結果のファイル出力　tn_fndsデバッグ用
+//Output candidate points and correction results to a file for debugging tn_frnzy
 /*
 	FILE *file;
 
@@ -398,13 +398,13 @@ void postprocessing(double framePeriod, double f0Floor, int candidates, int xLen
 	}
 	fclose(file);
 */
-	// メモリの開放
+	// Free up memory
 	free(bestF0Stab);
 	free(f0Base);
 	free(f0Step1); free(f0Step2); free(f0Step3); free(f0Step4);
 }
 
-// イベントを計算する内部関数 (内部変数なので引数・戻り値に手加減なし)
+// Internal function to calculate events (internal variables, so no adjustments to arguments or return values)
 void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLength, int fftl, double framePeriod, double f0Floor, double f0Ceil, double *timeAxis, int tLen, 
 				   double *f0Deviations, double *interpolatedF0,
 				   fftw_plan &forwardFFT, fftw_plan &inverseFFT, double *equivalentFIR, fftw_complex *eSpec)
@@ -417,37 +417,36 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 	for(i = halfAverageLength*2;i < fftl;i++) equivalentFIR[i] = 0.0;
 	nuttallWindow(halfAverageLength*4, equivalentFIR);
 
-//tn_fnds v0.0.4 FFTWプランはDIO本体で作成することにした
-//	fftw_plan			forwardFFT;				// FFTセット
-//	fftw_complex		*eSpec;	// スペクトル
+// FFTW plan is now created in DIO itself
+//	fftw_plan			forwardFFT;				// Set FFT
+//	fftw_complex		*eSpec;	// Spectral
 //	eSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 //	forwardFFT = fftw_plan_dft_r2c_1d(fftl, equivalentFIR, eSpec, FFTW_ESTIMATE);
-	fftw_execute(forwardFFT); // FFTの実行
+	fftw_execute(forwardFFT); // Execute FFT
 
-	// 複素数の掛け算
+	// Multiply complex numbers
 	double tmp;
-//	for(i = 0;i <= fftl-1;i++)　
-	for(i = 0;i <= fftl>>1;i++)	//tn_fnds v0.0.4 FFT長の半分でいいはず
+	for(i = 0;i <= fftl>>1;i++)
 	{
 		tmp = xSpec[i][0]*eSpec[i][0] - xSpec[i][1]*eSpec[i][1];
 		eSpec[i][1] = xSpec[i][0]*eSpec[i][1] + xSpec[i][1]*eSpec[i][0];
 		eSpec[i][0] = tmp;
 	}
 
-	// 低域通過フィルタリング
-//tn_fnds v0.0.4 FFTWプランはDIO本体で作成することにした
+	// Low-pass filtering
+// FFTW plan is now created in DIO itself
 //	fftw_plan	 inverseFFT;
 //	inverseFFT = fftw_plan_dft_c2r_1d(fftl, eSpec, equivalentFIR, FFTW_ESTIMATE);
 	fftw_execute(inverseFFT);
-	// バイアス（低域通過フィルタによる遅延）の除去
+	// Remove bias (delay due to low-pass filtering)
 	for(i = 0;i < xLength;i++) equivalentFIR[i] = equivalentFIR[i+indexBias];
 
-	// ４つのゼロ交差(構造体のほうがいいね) e:event, i:interval
+	// Four-Zero crossings e:event i:interval
 	double *nELocations, *pELocations, *dnELocations, *dpELocations;
 	double *nILocations, *pILocations, *dnILocations, *dpILocations;
 	double *nIntervals, *pIntervals, *dnIntervals, *dpIntervals;
 	int nLen, pLen, dnLen, dpLen;
-	nELocations = (double *)malloc(sizeof(double) * xLength); // xLengthはかなりの保険
+	nELocations = (double *)malloc(sizeof(double) * xLength);
 	pELocations = (double *)malloc(sizeof(double) * xLength);
 	dnELocations = (double *)malloc(sizeof(double) * xLength);
 	dpELocations = (double *)malloc(sizeof(double) * xLength);
@@ -482,7 +481,7 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 
 	double *interpolatedF0Set[4];
 	if(usableChannel <= 0) 
-	{ // ノー候補でフィニッシュです
+	{ // Finish with no candidates
 		for(i = 0;i < tLen;i++)
 		{
 			f0Deviations[i] = 100000.0;
@@ -493,7 +492,7 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 	{
 		for(i = 0;i < 4;i++)
 			interpolatedF0Set[i] = (double *)malloc(sizeof(double) * tLen);
-		// 4つのゼロ交差
+		// Four-Zero crossings
 		interp1(nILocations , nIntervals , nLen , timeAxis, tLen, interpolatedF0Set[0]);
 		interp1(pILocations , pIntervals , pLen , timeAxis, tLen, interpolatedF0Set[1]);
 		interp1(dnILocations, dnIntervals, dnLen, timeAxis, tLen, interpolatedF0Set[2]);
@@ -510,7 +509,7 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 				+ (interpolatedF0Set[3][i]-interpolatedF0[i])*(interpolatedF0Set[3][i]-interpolatedF0[i])) / 3.0);
 
 			if(interpolatedF0[i] > boundaryF0 || interpolatedF0[i] < boundaryF0/2.0 
-				|| interpolatedF0[i] > f0Ceil || interpolatedF0[i] < FLOOR_F0) // 70 Hz以下はF0としない．
+				|| interpolatedF0[i] > f0Ceil || interpolatedF0[i] < FLOOR_F0) // F0 is not set below 70Hz
 			{
 				interpolatedF0[i] = 0.0;
 				f0Deviations[i]   = 100000.0;
@@ -521,7 +520,7 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 	}
 
 
-	// メモリの開放
+	// Free up memory
 	free(nELocations); free(pELocations); free(dnELocations); free(dpELocations);
 	free(nILocations); free(pILocations); free(dnILocations); free(dpILocations);
 	free(nIntervals); free(pIntervals); free(dnIntervals); free(dpIntervals);
@@ -531,7 +530,7 @@ void rawEventByDio(double boundaryF0, double fs, fftw_complex *xSpec, int xLengt
 //	free(equivalentFIR);
 }
 
-// ゼロ交差を計算
+// Calculate zero crossings
 void zeroCrossingEngine(double *x, int xLen, double fs,
 						double *eLocations, double *iLocations, double *intervals, int *iLen)
 {
@@ -540,7 +539,7 @@ void zeroCrossingEngine(double *x, int xLen, double fs,
 	negativeGoingPoints = (int *)malloc(sizeof(int) * xLen);
 
 	int tmp1, tmp2;
-	for(i = 0;i < xLen-1;i++) // 毎回余りを計算するのは無駄
+	for(i = 0;i < xLen-1;i++) // It's useless to calculate the remainder every time
 	{
 		tmp1 = x[i]*x[i+1] < 0 ? 1 : 0;
 		tmp2 = x[i+1] < x[i]   ? 1 : 0;
@@ -548,7 +547,7 @@ void zeroCrossingEngine(double *x, int xLen, double fs,
 	}
 	negativeGoingPoints[xLen-1] = 0;
 
-	// 有効イベントの検出
+	// Detect valid events
 	int *edges;
 	edges = (int *)malloc(sizeof(int) * xLen);
 	int count = 0;
@@ -556,7 +555,7 @@ void zeroCrossingEngine(double *x, int xLen, double fs,
 	{
 		if(negativeGoingPoints[i] > 0) edges[count++] = negativeGoingPoints[i];
 	}
-	// 最終戻り値の計算準備
+	// Prepare to calculate the final return value
 	double *fineEdges;
 	fineEdges = (double *)malloc(sizeof(double) * count);
 	for(i = 0;i < count;i++)
@@ -571,14 +570,14 @@ void zeroCrossingEngine(double *x, int xLen, double fs,
 		iLocations[i] = (fineEdges[i]+fineEdges[i+1])/2.0/fs;
 		eLocations[i] = fineEdges[i]/fs;
 	}
-	if(count != 0) eLocations[count-1] = fineEdges[count-1]/fs;  //0の場合を考慮
+	if(count != 0) eLocations[count-1] = fineEdges[count-1]/fs;  // Consider the case of 0
 
 	free(fineEdges);
 	free(edges);
 	free(negativeGoingPoints);
 }
 
-// ナットール窓．マジックナンバーのように見えるけどこれが正解．
+// Nuttall window
 void nuttallWindow(int yLen, double *y)
 {
 	int i;

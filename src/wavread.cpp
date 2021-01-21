@@ -9,41 +9,37 @@
 
 //#pragma warning(disable:4996)
 
-/* wavread関数の移植 */
+/* Port wavread function */
 double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offset, int *endbr)
 {
 	FILE *fp;
-	char dataCheck[5]; // 少し多めに
+	char dataCheck[5]; // More
 	unsigned char forIntNumber[4];
 	double tmp, signBias, zeroLine;
 	short int channel;
 	int quantizationByte;
 	double *waveForm;
 
-	dataCheck[4] = '\0'; // 文字列照合のため，最後に終了文字を入れる．
-//	fp = fopen(filename, "rb");
+	dataCheck[4] = '\0'; // For string collation, insert a terminating character at the end.
 	fp = fopen(filename, "rb");
 	if(NULL == fp) 
 	{
-	  //printf("ファイルのロードに失敗\n");
 	  printf("Loading file %s failed.\n", filename);
 		return NULL;
 	}
-	//ヘッダのチェック
+	// Header check
 	fread(dataCheck, sizeof(char), 4, fp); // "RIFF"
 	if(0 != strcmp(dataCheck,"RIFF"))
 	{
 		fclose(fp);
-		//printf("ヘッダRIFFが不正\n");
 		printf("Incorrect RIFF header\n");
 		return NULL;
 	}
-	fseek(fp, 4, SEEK_CUR); // 4バイト飛ばす
+	fseek(fp, 4, SEEK_CUR); // Skip 4 bytes
 	fread(dataCheck, sizeof(char), 4, fp); // "WAVE"
 	if(0 != strcmp(dataCheck,"WAVE"))
 	{
 		fclose(fp);
-		//printf("ヘッダWAVEが不正\n");
 		printf("Incorrect WAVE header\n");
 		return NULL;
 	}
@@ -51,7 +47,6 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(0 != strcmp(dataCheck,"fmt "))
 	{
 		fclose(fp);
-		//printf("ヘッダfmt が不正\n");
 		printf("Incorrect fmt header\n");
 		return NULL;
 	}
@@ -59,7 +54,6 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(16 == dataCheck[0] && 0 == dataCheck[1] && 0 == dataCheck[2] && 0 == dataCheck[3]))
 	{
 		fclose(fp);
-		//printf("ヘッダfmt (2)が不正\n");
 		printf("Incorrect fmt header (2)\n");
 		return NULL;
 	}
@@ -67,7 +61,6 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(1 == dataCheck[0] && 0 == dataCheck[1]))
 	{
 		fclose(fp);
-		//printf("フォーマットIDが不正\n");
 		printf("Incorrect format ID\n");
 		return NULL;
 	}
@@ -76,40 +69,40 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	if(!(1 == dataCheck[0] && 0 == dataCheck[1]))
 	{
 		fclose(fp);
-		printf("ステレオには対応していません\n");
+		printf("Stereo audio is not supported\n");
 		return NULL;
 	}
 	*/
-	//チャンネル
+	// Cancel
 	//fread(&channel, sizeof(short int), 1, fp); 
 	fread(forIntNumber, sizeof(char), 2, fp);
 	channel = forIntNumber[0];
 	//printf("\nChannel: %d\n", channel);
 
-	// サンプリング周波数
+	// Sampling frequency
 	fread(forIntNumber, sizeof(char), 4, fp);
 	*fs = 0;
 	for(int i = 3;i >= 0;i--)
 	{
 	  *fs = (*fs << 8) + forIntNumber[i];
 	}
-	// 量子化ビット数
-	fseek(fp, 6, SEEK_CUR); // 6バイト飛ばす
+	// Quantization bit rate
+	fseek(fp, 6, SEEK_CUR); // Skip 6 bytes
 	fread(forIntNumber, sizeof(char), 2, fp);
 	*Nbit = forIntNumber[0];
-	// ヘッダ
+	// Header
 	int dummy;
 	fread(dataCheck, sizeof(char), 4, fp); // "data"
 	while(0 != strcmp(dataCheck,"data"))
 	{
 		fread(&dummy, sizeof(char), 4, fp);
-		fseek(fp, dummy, SEEK_CUR); // 無関係なチャンクを読み飛ばす
+		fseek(fp, dummy, SEEK_CUR); // Skip irrelevant chunks
 		fread(dataCheck, sizeof(char), 4, fp); // "data"
 //		fclose(fp);
-//		printf("ヘッダdataが不正\n");
+//		printf("Invalid header data\n");
 //		return NULL;
 	}
-	// サンプル点の数
+	// Number of sample points
 	fread(forIntNumber, sizeof(char), 4, fp); // "data"
 	*waveLength = 0;
 	for(int i = 3;i >= 0;i--)
@@ -118,7 +111,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	}
 	*waveLength /= (*Nbit/8 * channel);
 
-	if(*endbr < 0) // 負の場合はoffsetからの距離
+	if(*endbr < 0) // If negative, distance from offset
 	{
 		*endbr = (*waveLength * 1000 / *fs) - (*offset-*endbr);
 	}
@@ -130,7 +123,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	*offset = *offset - (st*1000 / *fs);
 	*waveLength = (ed - st + 1);
 
-	// 波形を取り出す
+	// Extract waveform
 	waveForm = (double *)malloc(sizeof(double) * *waveLength);
 	if(waveForm == NULL) return NULL;
 
@@ -138,11 +131,11 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 	zeroLine = pow(2.0,*Nbit-1);
 //	for(int i = 0;i < *waveLength;i++)
 
-	fseek(fp, st * quantizationByte * channel, SEEK_CUR);  //スタート位置まで読み飛ばす
+	fseek(fp, st * quantizationByte * channel, SEEK_CUR);  // Skip to starting position
 
 	unsigned char *wavbuff;
 	wavbuff = (unsigned char *) malloc(sizeof(char) * *waveLength * quantizationByte * channel);
-	fread(wavbuff, sizeof(char), *waveLength * quantizationByte * channel, fp); // 全部メモリに読み込む
+	fread(wavbuff, sizeof(char), *waveLength * quantizationByte * channel, fp); // Load into memory
 	int seekindex;
 
 	for(int i = 0;i < *waveLength;i++)
@@ -150,13 +143,13 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 		seekindex = i * quantizationByte * channel;
 		signBias = 0.0;
 		tmp = 0.0;
-		// 符号の確認
+		// Check sign
 		if(wavbuff[seekindex + quantizationByte-1] >= 128)
 		{
 			signBias = pow(2.0,*Nbit-1);
 			wavbuff[seekindex + quantizationByte-1] = wavbuff[seekindex + quantizationByte-1] & 0x7F;
 		}
-		// データの読み込み
+		// Loading data
 		for(int j = quantizationByte-1;j >= 0;j--)
 		{
 			tmp = tmp*256.0 + (double)(wavbuff[seekindex + j]);
@@ -164,7 +157,7 @@ double * wavread(char* filename, int *fs, int *Nbit, int *waveLength, int *offse
 		waveForm[i] = (double)((tmp - signBias) / zeroLine);
 
 	}
-	// 成功
+	// Success!
 	free(wavbuff);
 	fclose(fp);
 	return waveForm;

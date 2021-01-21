@@ -9,14 +9,14 @@
 void starGeneralBody(double *x, int xLen, int fs, double f0, double t, int fftl,
 					double * sliceSTAR);
 
-// サンプリング周波数から必要なFFT長を計算
-// 本当は合成音声の最低F0も必要だけど無視
+// Calculate the required FFT length from the sampling frequency
+// A minimum F0 for speech synthesis is really needed, but I guess I'll ignore it
 int getFFTLengthForStar(int fs)
 {
 	return (int)pow(2.0, 1.0+(int)(log(3.0*fs/FLOOR_F0+1) / log(2.0)));
 }
 
-// STARによるスペクトル包絡推定
+// Spectral Envelope Estimation with STAR
 /*
 void star(double *x, int xLen, int fs, double *timeAxis, double *f0,
 		 double **specgram)

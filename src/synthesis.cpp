@@ -5,7 +5,7 @@
 #include <stdio.h> // for debug
 #include <stdlib.h>
 
-// spectrum, cepstrumは毎回malloc, freeするのが面倒だから．
+// Because it is troublesome to malloc and free spectrum and cepstrum every time.
 /*
 int getOneFrameSegment(double *f0, int tLen, double **specgram, double **aperiodicity, int fftl, double framePeriod, double currentTime, int fs, double defaultF0,
 						fftw_complex *spectrum, fftw_complex *cepstrum, 
@@ -20,7 +20,7 @@ void getMinimumPhaseSpectrum(double *inputSpec, fftw_complex *spectrum, fftw_com
 	forwardFFT = fftw_plan_dft_1d(fftl, spectrum, cepstrum, FFTW_FORWARD, FFTW_ESTIMATE);
 	inverseFFT = fftw_plan_dft_1d(fftl, cepstrum, spectrum, FFTW_BACKWARD, FFTW_ESTIMATE);
 
-	// 値を取り出す
+	// Extract value
 	for(i = 0;i <= fftl/2;i++)	
 	{
 		spectrum[i][0] = log(inputSpec[i])/2.0;
@@ -52,7 +52,7 @@ void getMinimumPhaseSpectrum(double *inputSpec, fftw_complex *spectrum, fftw_com
 	}
 }
 */
-// 特定時刻の応答を取得する．
+// Obtain the response at a specific time.
 /*
 void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residualSpecgram, int fftl, double framePeriod, double currentTime, int fs, double defaultF0,
 						fftw_complex *spectrum, fftw_complex *cepstrum, 
@@ -60,7 +60,7 @@ void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residu
 {
 	int i;
 	double real, imag, tmp;
-	fftw_plan	inverseFFT_RP;				// FFTセット
+	fftw_plan	inverseFFT_RP;				// Set FFT
 
 	int currentFrame, currentPosition;
 
@@ -71,7 +71,7 @@ void getOneFrameSegment(double *f0, int tLen, double **specgram, double **residu
 
 	tmp = currentTime + 1.0/(f0[currentFrame] == 0.0 ? defaultF0 : f0[currentFrame]);
 
-	// 値を取り出す
+	// Extract value
 	getMinimumPhaseSpectrum(specgram[currentFrame], spectrum, cepstrum, fftl);
 
 	spectrum[0][0] *= residualSpecgram[currentFrame][0];
@@ -99,16 +99,16 @@ void synthesisPt100(double *f0, int tLen, double **aperiodicity, int fftl, doubl
 	int currentFrame = 0;
 	for(i = 0;;i++)
 	{
-		currentPosition = (int)(currentTime*(double)fs);//周期単位で継ぎ足していく
+		currentPosition = (int)(currentTime*(double)fs); // Add in cycles
 		for(j = 0;j < fftl/2;j++)
 		{
 			if(j+currentPosition >= xLen) break;
 			synthesisOut[j+currentPosition] += aperiodicity[currentFrame][j];
 		}
 
-		// 更新
-		currentTime += 1.0/(f0[currentFrame] == 0.0 ? DEFAULT_F0 : f0[currentFrame]);//時刻を1周期分進める
-		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//次に継ぎ足すデータ位置は次の時刻に最も近いフレーム
+		// Update
+		currentTime += 1.0/(f0[currentFrame] == 0.0 ? DEFAULT_F0 : f0[currentFrame]); // Advance time by one cycle
+		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5); // The next data position to be added is the frame closest to the next time
 		currentPosition = (int)(currentTime*(double)fs);
 		if(j+currentPosition >= xLen || currentFrame >= tLen) break;
 	}
@@ -133,10 +133,10 @@ void synthesisPt101(double fixedDefault_f0, double *f0, int tLen, double **aperi
 			synthesisOut[max(0, j+currentPosition)] += aperiodicity[fixedResidualSpecgramIndex[currentFrame]][j] * volume[currentFrame];
 		}
 
-		// 更新
-		currentTime += 1.0/(f0[currentFrame] == 0.0 ? fixedDefault_f0 : f0[currentFrame]);//時刻を1周期分進める
-		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5);//次に継ぎ足すデータ位置は次の時刻に最も近いフレーム
-		currentPosition = (int)(currentTime*(double)fs);//周期単位で継ぎ足していく
+		// Update
+		currentTime += 1.0/(f0[currentFrame] == 0.0 ? fixedDefault_f0 : f0[currentFrame]); // Advance time by one cycle
+		currentFrame = (int)(currentTime/(framePeriod/1000.0) + 0.5); // The next data position to be added is the frame closest to the next time.
+		currentPosition = (int)(currentTime*(double)fs); // Add in cycles
 
 		if(j+currentPosition >= xLen || currentFrame >= tLen) break;
 	}

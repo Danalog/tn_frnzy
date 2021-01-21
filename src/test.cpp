@@ -1,17 +1,27 @@
-// Vocal Synthesis Engine tn_frnzy for UTAU, based on Zteer's tn_fnds
-//
-// このプログラムは森勢将雅氏のWORLD版UTAU合成エンジン『エターナルフォースブリサンプラー 
-// ジェントリー・ウィープス　～相手は死ぬ，俺も死ぬ～』(EFB-GW)をカスタマイズし、連続音や
-// 子音速度、一部のフラグに対応させたものです。
-// 作成に当たり、飴屋／菖蒲氏のworld4utauのソースも流用させていただきました。
-//
-// ---以下原本のコメント
-//
-// エターナルフォースブリサンプラー ジェントリー・ウィープス　～相手は死ぬ，俺も死ぬ～
-// ネタではじめたWORLD版UTAU合成エンジンです．WORLD 0.0.4をガンガン変えているので，
-// このプログラムはWORLDとは別物だと思ったほうが良いです．
-// プラチナの数字は千分率での純度を表していて，850以上がプラチナと認められる．
-// よってPt100というのは，プラチナとはいえない別の何か（本プログラムにおける新機能）です．
+
+/*
+Vocal Synthesis Engine tn_frnzy for UTAU, based on Zteer's tn_fnds
+
+All comments were translated using DeepL
+I decided on taking up the task of maintaining this resampler
+
+you can find it at: https://github.com/Danalog/tn_frnzy
+
+-- The following are comments from Zteer's tn_fnds
+
+This program is based on Masamasa Morise's UTAU synthesis engine for WORLD, Eternal Force Blisampler. 
+You can customize "Gentry Weeps: They Die, I Die" (EFB-GW) to create continuous sound and
+consonant speed, and some flags.
+I also used Ameya/Shobu's world4utau source code to create this.
+
+ --- The following are comments from the original
+
+Eternal Force Blissampler Gentry Weeps ~The other person dies, I die too~.
+This is a UTAU synthesis engine for WORLD 0.0.4.
+This program is not the same as WORLD.
+The platinum number indicates the purity in thousandths, and platinum is recognized as platinum if it is above 850.
+Therefore, Pt100 is something else (a new feature in this program) that cannot be considered platinum.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,22 +34,22 @@
 
 #include <math.h>
 
-// 13引数のうち
-// 1 入力ファイル（OK）
-// 2 出力ファイル（OK）
-// 3 音階（OK）
-// 4 子音速度
-// 5 フラグ（無視）(OK)
-// 6 オフセット
-// 7 長さ調整
-// 8 子音部
-// 9 ブランク
-// 10 ボリューム (OK)
-// 11 モジュレーション (OK)
-// 12 テンポ
-// 13 ピッチベンド
+// 13 Arguments:
+// 1 - Input File (OK)
+// 2 - Output File (OK)
+// 3 - Scale (OK)
+// 4 - Consonant Velocity
+// 5 - Flag (OK)
+// 6 - Offset
+// 7 - Length Adjustment
+// 8 - Consonant Part
+// 9 - Blank
+// 10 - Volume (OK)
+// 11 - Modulation (OK)
+// 12 - Tempo
+// 13 - Pitch Bend
 
-// 分析シフト量 [msec]
+// Analysis shift amount [msec]
 #define FRAMEPERIOD 2.0
 
 //#pragma comment(lib, "winmm.lib")
@@ -132,7 +142,7 @@ int getF0Contour(char *input, double *output)
 	while(input[i] != '\0')
 	{
 		if(input[i] == '#')
-		{ // 別作業にいってらっしゃい
+		{
 			length = 0;
 			for(j = i+1;input[j]!='#';j++)
 			{
@@ -155,7 +165,7 @@ int getF0Contour(char *input, double *output)
 	return count;
 }
 
-//飴屋／菖蒲氏のworld4utau.cppから移植
+// Ported from Ameya's world4utau.cpp
 double getFreqAvg(double f0[], int tLen)
 {
 	int i, j;
@@ -169,7 +179,7 @@ double getFreqAvg(double f0[], int tLen)
 		if (value < 1000.0 && value > 55.0)
 		{
 			r = 1.0;
-			//連続して近い値の場合のウエイトを重くする
+			// Heavier weighting for consecutive close values
 			for (j = 0; j <= 5; j++)
 			{
 				if (i > j) {
@@ -187,7 +197,7 @@ double getFreqAvg(double f0[], int tLen)
 	if (base_value > 0) freq_avg /= base_value;
 	return freq_avg;
 }
-//飴屋／菖蒲氏のworld4utau.cppから移植
+// Ported from Ameya's world4utau.cpp
 int get64(int c)
 {
     if (c >= '0' && c <='9')
@@ -215,7 +225,7 @@ int get64(int c)
         return 0;
     }
 }
-//飴屋／菖蒲氏のworld4utau.cppから移植
+// Ported from Ameya's world4utau.cpp
 int decpit(char *str, int *dst, int cnt)
 {
 	int len = 0;
@@ -253,7 +263,7 @@ int decpit(char *str, int *dst, int cnt)
 void equalizingPicth(double *f0, int tLen, char *scaleParam, int modulationParam, int flag_t)
 {
 	int i;
-	// まず平均値を調べる．
+	// Examine mean value
 	double averageF0;
 	double modulation;
 
@@ -266,7 +276,7 @@ void equalizingPicth(double *f0, int tLen, char *scaleParam, int modulationParam
 	double targetF0;
 	int bias = 0;
 
-	// 目標とする音階の同定
+	// Identify target scale
 	if(scaleParam[1] == '#') bias = 1;
 
 	switch(scaleParam[0])
@@ -328,16 +338,16 @@ int stretchTime(double *f0, int tLen, int fftl, int *residualSpecgramIndex,
 	int i, k;
 	int st2, ed2;
 
-	st2 = min(tLen2, (int)((st-os) * vRatio + 0.5));  //伸縮後の子音部フレーム
-    ed2 = min(tLen2, (int)(Length2 + 0.5));     //合成後のサンプル数
-	// 前半  
+	st2 = min(tLen2, (int)((st-os) * vRatio + 0.5));  // Consonant frame after expansion and contraction
+    ed2 = min(tLen2, (int)(Length2 + 0.5));     // Number of samples after synthesis
+	// First half 
 	for(i = 0;i < st2;i++)
 	{
 		k = max(0, min(tLen-1, int(i/vRatio) + os));
 		f02[i] = f0[k];
 		residualSpecgramIndex2[i] = residualSpecgramIndex[k];
 	}
-	// 後半（ループ式引き伸ばし）
+	// Second half (looped stretching)
 	if(mode == 0)
 	{
 		i = st2;
@@ -361,8 +371,8 @@ int stretchTime(double *f0, int tLen, int fftl, int *residualSpecgramIndex,
 	}
 	else
 	{
-		// 後半（UTAU式引き伸ばし）
-		if(ed2-st2 > ed-st)//引き伸ばし
+		// Second half (UTAU-Style stretching)
+		if(ed2-st2 > ed-st) // Expansion
 		{
 			double ratio;
 			ratio = (double)(ed-st)/(ed2-st2);
@@ -432,14 +442,14 @@ void f0Lpf(double *f0, int tLen, int flag_d)
 	for(i = 0; i < tLen; i++) f0[i] = newf0[i];
 }
 
-//イコライジング用スペクトル作成
+// Create spectrum for equalization
 void createWaveSpec(double *x, int xLen, int fftl, int equLen, fftw_complex **waveSpecgram)
 {
 	int i, j;
 
 	double *waveBuff;
-	fftw_plan			wave_f_fft;				// fftセット
-	fftw_complex		*waveSpec;	// スペクトル
+	fftw_plan			wave_f_fft;				// Set FFT
+	fftw_complex		*waveSpec;	// Spectral
 	waveBuff = (double *)malloc(sizeof(double) * fftl);
 	waveSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 	wave_f_fft = fftw_plan_dft_r2c_1d(fftl, waveBuff, waveSpec, FFTW_ESTIMATE);	
@@ -449,14 +459,14 @@ void createWaveSpec(double *x, int xLen, int fftl, int equLen, fftw_complex **wa
 	for(i = 0;i < equLen;i++)
 	{
 		offset = i * fftl / 2;
-		//データをコピー
+		// Copy Data
 		for(j = 0;j < fftl; j++) waveBuff[j] = x[offset + j] * 
-										(0.5 - 0.5 * cos(2.0*PI*(double)j/(double)fftl));//窓を掛ける;
+										(0.5 - 0.5 * cos(2.0*PI*(double)j/(double)fftl));// Hang window
 
-		//fft実行
+		// Execute FFT
 		fftw_execute(wave_f_fft);
 
-		//スペクトルを格納
+		// Store spectrogram
 		for(j = 0;j < fftl/2+1; j++)
 		{
 			waveSpecgram[i][j][0] = waveSpec[j][0];
@@ -470,13 +480,13 @@ void createWaveSpec(double *x, int xLen, int fftl, int equLen, fftw_complex **wa
 
 }
 
-//スペクトルから波形を再構築
+// Reconstruct waveforms from spectrogram
 void rebuildWave(double *x, int xLen, int fftl, int equLen, fftw_complex **waveSpecgram)
 {
 	int i, j;
 	double *waveBuff;
-	fftw_plan			wave_i_fft;				// fftセット
-	fftw_complex		*waveSpec;	// スペクトル
+	fftw_plan			wave_i_fft;				// Set FFT
+	fftw_complex		*waveSpec;	// Spectral
 	waveBuff = (double *)malloc(sizeof(double) * fftl);
 	waveSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 	wave_i_fft = fftw_plan_dft_c2r_1d(fftl, waveSpec, waveBuff, FFTW_ESTIMATE);	
@@ -488,7 +498,7 @@ void rebuildWave(double *x, int xLen, int fftl, int equLen, fftw_complex **waveS
 	{
 		offset = i * fftl / 2;
 
-		//スペクトルを格納
+		// Store spectrogram
 		for(j = 0;j < fftl/2+1; j++)
 		{
 			waveSpec[j][0] = waveSpecgram[i][j][0];
@@ -496,12 +506,12 @@ void rebuildWave(double *x, int xLen, int fftl, int equLen, fftw_complex **waveS
 		}
 
 
-		//fft実行
+		// Execute FFT
 		fftw_execute(wave_i_fft);
 
 		for(j = 0;j < fftl; j++) waveBuff[j] /= fftl;
 
-		//データをコピー
+		// Copy Data
 		for(j = 0;j < fftl; j++) x[offset + j]  += waveBuff[j]; 
 
 	}
@@ -512,32 +522,38 @@ void rebuildWave(double *x, int xLen, int fftl, int equLen, fftw_complex **waveS
 
 }
 
-//Bフラグ（息）を適用する
+/*
+---------------
+	FLAGS
+---------------
+*/
+
+// B Flag (Breath)
 void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **waveSpecgram,int equLen, int fftl, int flag_B)
 {
 	int i, j;
 
-	//ノイズfftの準備
+	// Preparation of FFT noise
 	double *noiseData;
 	double *noiseBuff;
 	double *noise;
-	fftw_plan			noise_f_fft;				// fftセット
-	fftw_plan			noise_i_fft;				// fftセット
-	fftw_complex		*noiseSpec;	// スペクトル
+	fftw_plan			noise_f_fft;				// Set FFT
+	fftw_plan			noise_i_fft;				// Set FFT
+	fftw_complex		*noiseSpec;	// Spectral
 
 	noiseData = (double *)malloc(sizeof(double) * xLen);
 	//for(i=0;i < xLen; i++) noiseData[i] = (double)rand()/(RAND_MAX+1) - 0.5;
 	for(i=0;i < xLen; i++) noiseData[i] = (double)rand()/((double)RAND_MAX+1) - 0.5;
 	noise = (double *)malloc(sizeof(double) * xLen);
 	for(i=0;i < xLen; i++) noise[i] = 0.0;
-//	for(i=0;i < xLen; i++) noiseData[i] *= noiseData[i] * (noiseData[i] < 0)? -1 : 1;//ノイズの分布をいじる
+//	for(i=0;i < xLen; i++) noiseData[i] *= noiseData[i] * (noiseData[i] < 0)? -1 : 1; // Tweak noise distribution
 	noiseBuff = (double *)malloc(sizeof(double) * fftl);
 	noiseSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 	noise_f_fft = fftw_plan_dft_r2c_1d(fftl, noiseBuff, noiseSpec, FFTW_ESTIMATE);	
 	noise_i_fft = fftw_plan_dft_c2r_1d(fftl, noiseSpec, noiseBuff, FFTW_ESTIMATE);	
 
-	//wavefftの準備
-	fftw_complex		*waveSpec;	// スペクトル
+	// Prepare wavefft
+	fftw_complex		*waveSpec;	// Spectral
 	waveSpec = (fftw_complex *)malloc(sizeof(fftw_complex) * fftl);
 
 	int offset;
@@ -545,9 +561,9 @@ void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **w
 
 	int SFreq, MFreq, EFreq;
 
-	SFreq = (int)(fftl * 1500 / fs);//ブレス開始周波数
-	MFreq = (int)(fftl * 5000 / fs);//ブレス開始周波数
-	EFreq = (int)(fftl * 20000 / fs);//ブレスの周波数帯
+	SFreq = (int)(fftl * 1500 / fs); // Breath start frequency
+	MFreq = (int)(fftl * 5000 / fs); // Breath middle frequency
+	EFreq = (int)(fftl * 20000 / fs); // BReath end frequency
 
 	double nowIndex;
 	int sIndex, eIndex;
@@ -559,14 +575,14 @@ void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **w
 	for(i = 0; i < equLen; i++)
 	{
 		offset = i * fftl / 2;
-		//データをコピー
+		// Copy Data
 		for(j = 0;j < fftl; j++) noiseBuff[j] = noiseData[offset + j] *
-										(0.5 - 0.5*cos(2.0*PI*(double)j/(double)fftl));//窓を掛ける;
+										(0.5 - 0.5*cos(2.0*PI*(double)j/(double)fftl)); // Hang window
 
-		//fft実行
+		// Execute FFT
 		fftw_execute(noise_f_fft);
 
-		//スペクトル包絡（超手抜き）
+		// Spectral envelope (difficult)
 		for(j = 0;j < fftl/2+1; j++) waveSpec[j][0] = sqrt(waveSpecgram[i][j][0] * waveSpecgram[i][j][0] + waveSpecgram[i][j][1] * waveSpecgram[i][j][1]);
 		for(j = 0;j < fftl/2+1; j++) waveSpec[j][0] = log10(waveSpec[j][0]+0.00000001);//対数化
 		for(j = 0;j < fftl/2+1; j++) waveSpec[j][1] = waveSpec[j][0];
@@ -597,9 +613,9 @@ void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **w
 			hs = he;
 		}
 
-		for(j = 0;j < fftl/2+1; j++) waveSpec[j][0] = pow(10, waveSpec[j][0]);//振幅化
+		for(j = 0;j < fftl/2+1; j++) waveSpec[j][0] = pow(10, waveSpec[j][0]); // Amplification
 
-		//ノイズのスペクトルを変形
+		// Transform noise spectrogram
 		for(j = 0;j < SFreq; j++)
 		{
 			noiseSpec[j][0] = 0.0;
@@ -628,26 +644,27 @@ void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **w
 		noiseSpec[0][1] = 0.0;
 		noiseSpec[fftl/2][1] = 0.0;
 
-		//逆fft
+		// Invert FFT
 		fftw_execute(noise_i_fft);
 		for(j = 0;j < fftl; j++) noiseBuff[j] /= fftl;
 		
-		//窓を掛ける
+		// Hang window
 	//	for(j = 0;j < fftl; j++) noiseBuff[j] *= 0.5 - 0.5*cos(2.0*PI*(double)j/(double)fftl);
 
-		//ノイズを加える
+		// Add Noise
+		// TODO: try messing with this
 		for(j = 0;j < fftl; j++)
 		{
 			noise[offset + j] += noiseBuff[j] * 0.2;
 		}
 	}
 	
-	//ノイズを合成
+	// Synthesize noise
 	double noiseRatio = max(0, (double)(flag_B - 50) / 50.0);
 	double waveRatio = 1 - noiseRatio;
 	for(i = 0;i < xLen;i++) x[i] = x[i] * waveRatio + noise[i] * noiseRatio;
 
-	//後処理
+	// Post-Processing
 	fftw_destroy_plan(noise_f_fft);
 	fftw_destroy_plan(noise_i_fft);
 	free(noise);
@@ -657,17 +674,17 @@ void breath2(double *f0, int tLen, int fs, double *x, int xLen, fftw_complex **w
 	free(waveSpec);
 }
 
-//Oフラグ（声の強さ）
+// O Flag (Brightness)
 void Opening(double *f0, int tLen, int fs, fftw_complex **waveSpecgram,int equLen, int fftl, int flag_O)
 {
 	int i, j;
 	double opn = (double) flag_O / 100.0;
-	int sFreq = (int)(fftl * 500 / fs);//制御周波数1
-	int eFreq = (int)(fftl * 2000 / fs);//制御周波数2
-	double sRatio = -10.0;//制御周波数1の振幅倍率デシベル
-	double eRatio = 10.0;//制御周波数2の振幅倍率デシベル
+	int sFreq = (int)(fftl * 500 / fs); // Control frequency 1
+	int eFreq = (int)(fftl * 2000 / fs); // Control frequency 2
+	double sRatio = -10.0; // Amplitude multiplier of control frequency 1 (dB)
+	double eRatio = 10.0; // Amplitude multiplier of control frequency 2 (dB)
 
-	//周波数ごとの音量マップ作成
+	// Create volume map for each frequency
 	double volume;
 	double *volumeMap;
 	volumeMap = (double *)malloc(sizeof(double) * fftl/2+1);
@@ -688,7 +705,7 @@ void Opening(double *f0, int tLen, int fs, fftw_complex **waveSpecgram,int equLe
 		volumeMap[j] = volume;
 	}
 
-	//周波数ごとの音量を変更
+	// Change volume for each frequency
 	int f0Frame;
 	for(i = 0;i < equLen;i++)
 	{
@@ -704,14 +721,14 @@ void Opening(double *f0, int tLen, int fs, fftw_complex **waveSpecgram,int equLe
 	free(volumeMap);
 }
 
-//bフラグ（子音（無声部）強調）
+// b Flag (Voiceless consonant stress)
 void consonantAmp2(double *f0, double *volume, int tLen, int flag_b)
 {
 	int i;
-	int frameLen = 5;//平滑化するフレーム数（前後）
+	int frameLen = 5; //Number of frames to smooth (before/after)
 	int addCount = 0;
 	double addVolume = 0;
-	double ratio = (double) flag_b / 20.0; //倍率　b=100 のとき5倍
+	double ratio = (double) flag_b / 20.0; // Magnification x5 when b=100
 
 	for(i = 0;i < min(tLen, frameLen+1); i++)
 	{
@@ -735,7 +752,7 @@ void consonantAmp2(double *f0, double *volume, int tLen, int flag_b)
 	}
 }
 
-//gフラグ（ジェンダーファクターもどき）を適用する
+// g Flag (Gender Factor)
 void gFactor(int pCount, int fftl, double **residualSpecgram, int *residualSpecgramLength, double gRatio)
 {
 	int i, j;
@@ -776,8 +793,8 @@ void gFactor(int pCount, int fftl, double **residualSpecgram, int *residualSpecg
 	}
 }
 
-//gフラグにより変化したノイズ部分の周期を補正（F0を周期に合わせる）
-//ノイズ部分のF0が0.0ではなくなるため、synthesisPt101の直前に実行する
+// Correct the period of the noise part changed by the g flag (adjust F0 to the period)
+// Execute just before synthesisPt101 because F0 of the noise part will not be 0.0
 void f0FixG(double *f0, int tLen2, double gRatio)
 {
 	int i;
@@ -790,11 +807,11 @@ void f0FixG(double *f0, int tLen2, double gRatio)
 	}
 }
 
-//f0列にノイズを加える
+// Add noise to F0
 void f0Noise(double *f0, int tLen, double f0Rand)
 {
 	int i, j;
-	int Pit = 1;//(int)(5 / FRAMEPERIOD + 0.5);//ピッチ変更間隔のフレーム数 50ms
+	int Pit = 1;
 	double sRand, eRand;
 	double NowRand;
 
@@ -817,14 +834,14 @@ void f0Noise(double *f0, int tLen, double f0Rand)
 		i += j;
 	}
 }
-//周波数をピッチに変換
+// Convert frequency to pitch
 
 double FrqToPit(double Frq)
 {
 	return log(Frq / 220) * 1.44269504088896 * 1200 + 5700;
 }
 
-//Aフラグ（ピッチ変化に合わせて音量を修正）
+// A Flag (Maps volume to pitch change)
 void autoVolume(double *f0, int tLen, int fs, double *volume, int flag_A)
 {
 	int i;
@@ -881,7 +898,6 @@ int main(int argc, char *argv[])
 
 	if(argc < 3) 
 	{
-	        //printf("error: 引数の数が不正です．\n");
 		printf("error: the number of parameters is not correct.\n");
 		return 0;
 	}
@@ -892,29 +908,29 @@ int main(int argc, char *argv[])
 		printf("%s\n", argv[i]);
 	//*/
 
-	//Flags読込
+	// Read flags
 	char *cp;
-	int flag_B = 50;//BRE（息）成分
+	int flag_B = 50; // B Flag (Breath)
 	if(argc > 5 && (cp = strchr(argv[5],'B')) != 0)
 	{
 		sscanf(cp+1, "%d", &flag_B);
 		flag_B = max(0, min(100, flag_B));
 	}
 
-	int flag_b = 0;//子音（無声部）の強さ
+	int flag_b = 0; // b Flag (Voiceless consonant stress)
 	if(argc > 5 && (cp = strchr(argv[5],'b')) != 0)
 	{
 		sscanf(cp+1, "%d", &flag_b);
 		flag_b = max(0, min(100, flag_b));
 	}
 
-	int flag_t = 0;//tフラグ
+	int flag_t = 0; // t Flag (Pitch shift (in cents))
 	if(argc > 5 && (cp = strchr(argv[5],'t')) != 0)
 	{
 		sscanf(cp+1, "%d", &flag_t);
 	}
 
-	double flag_g = 0.0;//gフラグ
+	double flag_g = 0.0; // g Flag (Gender Factor)
 	double gRatio;
 	if(argc > 5 && (cp = strchr(argv[5],'g')) != 0)
 	{
@@ -924,8 +940,8 @@ int main(int argc, char *argv[])
 	}
 	gRatio = pow(10, -flag_g / 200);
 
-	double flag_W = 0.0;//Wフラグ（周波数強制設定）F<0無声音  F=0無効  50>=F<=1000 指定の周波数に設定 
-	double f0Rand = 0;//
+	double flag_W = 0.0; // W Flag（Forced Frequency Setting）F<0 silent F=0 disabled 50>=F<=1000 Set to specified frequency  
+	double f0Rand = 0;
 	if(argc > 5 && (cp = strchr(argv[5],'W')) != 0)
 	{
 		sscanf(cp+1, "%lf", &flag_W);
@@ -933,28 +949,28 @@ int main(int argc, char *argv[])
 		if ((flag_W <    50) && (flag_W >    0)){f0Rand =  flag_W / 50; flag_W = 0;}
 		if (flag_W <    0) flag_W = -1;
 	}
-	int flag_d = 5;//独自フラグ　DIOのF0分析結果にLPFをかける 0~20 def 5
-//	if(argc > 5 && (cp = strchr(argv[5],'d')) != 0) //デフォルトから変更する必要が無いと感じたのでとりあえず無効
-//	{
-//		sscanf(cp+1, "%d", &flag_d);
-//		flag_d = max(0, min(20, flag_d));
-//	}
+	int flag_d = 5; // d Flag (Apply LPF to DIO F0 analysis results 0~20 def 5)
+	if(argc > 5 && (cp = strchr(argv[5],'d')) != 0)
+	{
+		sscanf(cp+1, "%d", &flag_d);
+		flag_d = max(0, min(20, flag_d));
+	}
 
-	int flag_A = 0;//独自フラグ　ピッチ変化に合わせて音量を修正
+	int flag_A = 0; // A Flag　(Map volume to pitch change)
 	if(argc > 5 && (cp = strchr(argv[5],'A')) != 0)
 	{
 		sscanf(cp+1, "%d", &flag_A);
 		flag_A = max(0, min(100, flag_A));
 	}
 
-	int flag_O = 0;//独自フラグ　声の強さ
+	int flag_O = 0;// O Flag (Brightness)
 	if(argc > 5 && (cp = strchr(argv[5],'O')) != 0)
 	{
 		sscanf(cp+1, "%d", &flag_O);
 		flag_O = max(-100, min(100, flag_O));
 	}
 
-	int flag_e = 0;//独自フラグ　引き伸ばし方法を変更する　デフォルトはループ式だが、指定するとUTAUと同じように引き伸ばす
+	int flag_e = 0;// e Flag (Stretching Method, 1=Looping 2=UTAU-Style stretching)
 	if(argc > 5 && (cp = strchr(argv[5],'e')) != 0)
 	{
 		flag_e = 1;
@@ -976,8 +992,7 @@ int main(int argc, char *argv[])
 
 	if(x == NULL)
 	{
-	        //printf("error: 指定されたファイルは存在しません．\n");
-		printf("error: The specified file doesnot exist.\n");
+		printf("error: The specified file does not exist.\n");
 		return 0;
 	}
 
@@ -986,14 +1001,14 @@ int main(int argc, char *argv[])
 	printf("Length %d [sample]\n", signalLen);
 	printf("Length %f [sec]\n", (double)signalLen/(double)fs);
 
-	// F0は何サンプル分あるかを事前に計算する．
+	// Pre-Calculate amount of samples in F0．
 	tLen = getSamplesForDIO(fs, signalLen, FRAMEPERIOD);
 	f0 = (double *)malloc(sizeof(double)*tLen);
 	t  = (double *)malloc(sizeof(double)*tLen);
-	// f0 estimation by DIO
+	// F0 Estimation with DIO
 	DWORD elapsedTime;
 	
-	if(flag_W == 0)//Fフラグ　f0 強制設定
+	if(flag_W == 0) // W Flag (Forced F0 Setting)
 	{
 		printf("\nAnalysis\n");
 		elapsedTime = timeGetTime();
@@ -1022,37 +1037,37 @@ int main(int argc, char *argv[])
 	
 	fftl = getFFTLengthForStar(fs);
 
-	// 非周期性指標の分析
+	// Analysis of Aperiodic Indicators
 	elapsedTime = timeGetTime();
 	residualSpecgramIndex = (int *)malloc(sizeof(int) * tLen);
 
 	pCount = pt101(x, signalLen, fs, t, f0, &residualSpecgram, &residualSpecgramLength, residualSpecgramIndex);
 	printf("PLATINUM: %d [msec]\n", timeGetTime() - elapsedTime);
 
-//Flag_g適用
+// Apply g flag
 	if(flag_g != 0)
 	{
 		 gFactor(pCount, fftl, residualSpecgram, residualSpecgramLength, gRatio);
 	}
 
-	//窓をかける
+	// Hang window
 	PulseResidualWindow(residualSpecgram, residualSpecgramLength, pCount);
 
-	// 時間長の伸縮
+	// Expansion and Contraction of time length
 	int lengthMsec, stLengthMsec, /*edLengthMsec,*/ inputLengthMsec;
 	double velocity;
 	double vRatio;
 
-	inputLengthMsec = (int)(tLen*FRAMEPERIOD);//原音の使用可能な長さ
-	lengthMsec = atoi(argv[7]);               //要求長
-	stLengthMsec = atoi(argv[8]);             //子音部
-	velocity = (double)atoi(argv[4]);         //子音速度 
-	vRatio = pow(2.0, (1.0 - (velocity / 100.0))); //子音伸縮率
+	inputLengthMsec = (int)(tLen*FRAMEPERIOD);     // Usable length of original sound
+	lengthMsec = atoi(argv[7]);                    // Requested length
+	stLengthMsec = atoi(argv[8]);                  // Consonant
+	velocity = (double)atoi(argv[4]);              // Consonant Velocity
+	vRatio = pow(2.0, (1.0 - (velocity / 100.0))); // Consonant Expansion Rate
 
-	// 制御パラメタのメモリ確保
+	// Memory allocation for control parameters
 	double *fixedF0;
 	int *fixedResidualSpecgramIndex;
-	double *fixedVolume;         //フレーム単位のボリューム
+	double *fixedVolume;         // Volume per frame
 
 	int tLen2;
 
@@ -1062,7 +1077,7 @@ int main(int argc, char *argv[])
 	fixedResidualSpecgramIndex	= (int *) malloc(sizeof(int) * tLen2);
 	fixedVolume	= (double *) malloc(sizeof(double) * tLen2);
 
-	// 最終波形のメモリ確保
+	// Allocate memory for final waveform
 	int signalLen2;
 	signalLen2 = (int)((lengthMsec       )/1000.0*(double)fs);
 	y  = (double *)malloc(sizeof(double)*signalLen2);
@@ -1071,10 +1086,10 @@ int main(int argc, char *argv[])
 //	printf("%d, %d, %d\n",lengthMsec, offset, fs);
 
 
-	// 合成の前にF0の操作 (引数)
+	// F0 Operation before synthesis (argument)
 	equalizingPicth(f0, tLen, argv[3], atoi(argv[11]), flag_t );
 
-	//時間伸縮
+	// Time Stretching
 	int os, st, ed;
 	os = offset;
 	st = stLengthMsec + offset;
@@ -1085,7 +1100,7 @@ int main(int argc, char *argv[])
 			os/(int)FRAMEPERIOD, st/(int)FRAMEPERIOD, min(ed/(int)FRAMEPERIOD, tLen-1),
 			lengthMsec, vRatio, flag_e);
 
-	//ピッチベンド適用 world4utauの処理を流用
+	// Apply pitch bend. Uses processing from world4utau
 	int *pit = NULL;
 	double tempo = 120;
 	int pLen = tLen2;
@@ -1120,73 +1135,73 @@ int main(int argc, char *argv[])
 	}
 //	createFinalPitch(fixedF0, tLen2, pitchBend, bLen, signalLen2, offset, fs, tempo);
 
-	//Wフラグのピッチノイズ　　デスボイス化を目論んだがうまくいかない
+	// W flag pitch noise I've been plotting to de-voice, but it's not working.
 //	if(f0Rand != 0.0)
 //	{
 //		f0Noise(fixedF0, tLen2, f0Rand);
 
 //	}
-	//Aフラグ適用
+	// Apply A Flag
 	autoVolume(fixedF0, tLen2, fs, fixedVolume, flag_A);
 
-	//bフラグ
+	// Apply b Flag
 	if(flag_b != 0)
 	{
 		consonantAmp2(fixedF0, fixedVolume, tLen2, flag_b);
 	}
 
-	//gフラグにより不整合となった無声部の周期とF0のつじつまを合わせる
+	// Reconcile the period of the silent part mismatched by the g flag with F0.
 	double fixedDefault_f0 = DEFAULT_F0 * gRatio;
 
-	// 合成
-	printf("\nSynthesis\n");
+	// Synthesis
+	printf("\n[tn_frnzy] Synthesis\n");
 	elapsedTime = timeGetTime();
 	synthesisPt101(fixedDefault_f0, fixedF0, tLen2, residualSpecgram, residualSpecgramLength, fixedResidualSpecgramIndex,
 		fixedVolume, fftl, FRAMEPERIOD, fs, y, signalLen2);
 
 	printf("WORLD: %d [msec]\n", timeGetTime() - elapsedTime);
 
-	//イコライジング
-	int equfftL = 1024;//イコライザーのfft長
-	int equLen = (signalLen2 / (equfftL/2)) - 1; //繰り返し回数
-	fftw_complex **waveSpecgram;  //スペクトル
+	// Equalization
+	int equfftL = 1024; // Equalize FFT Length
+	int equLen = (signalLen2 / (equfftL/2)) - 1; // Number of repititions
+	fftw_complex **waveSpecgram;  // Spectral
 	waveSpecgram = (fftw_complex **)malloc(sizeof(fftw_complex *) * equLen);
 	for(i = 0;i < equLen;i++) waveSpecgram[i] = (fftw_complex *)malloc(sizeof(fftw_complex) * (equfftL/2+1));
 
-	//スペクトル作成
+	// Create Spectrogram
 	if(flag_B > 50 || flag_O != 0)
 	{
 		createWaveSpec(y, signalLen2, equfftL, equLen, waveSpecgram);
 	}
 
-	//声の強さ
+	// Apply O Flag
 	if(flag_O != 0)
 	{
 		Opening(fixedF0, tLen2, fs, waveSpecgram, equLen, equfftL, flag_O);
 	}
 
-	//イコライズ結果を波形に反映
+	// Reflect equalization result in waveform
 	if(flag_O != 0)
 	{
 		rebuildWave(y, signalLen2, equfftL, equLen, waveSpecgram);
 	}
 
-	//ノイズ
+	// B Flag
 	if(flag_B > 50)
 	{
 		 breath2(fixedF0, tLen2, fs, y, signalLen2, waveSpecgram, equLen, equfftL, flag_B);
 	}
 
-	// オフセットの設定
+	// Set Offset
 //	signalLen2 = (int)((lengthMsec)/1000.0*(double)fs);
 
-	// ファイルの書き出し (内容には関係ないよ)
+	// Exporting a file (not related to its content)
 	char header[44];
 	short *output;
 	double maxAmp;
 	output = (short *)malloc(sizeof(short) * signalLen2);
  
-	// 振幅の正規化
+	// Amplitude Normalization
 	maxAmp = 0.0;
 	double volume;
 	volume = (double)atoi(argv[10]) / 100.0;
@@ -1197,11 +1212,11 @@ int main(int argc, char *argv[])
 	fread(header, sizeof(char), 44, fp);
 	fclose(fp);
 
-	*((short int*)(&header[22])) = 1;		//channels	 	2 	チャンネル数
-	*((int*)(&header[24])) = fs;			//samplerate 	4 	サンプル数/秒
-	*((int*)(&header[28])) = fs * nbit / 8;	//bytepersec 	4 	バイト数/秒
-	*((short int*)(&header[32])) = nbit / 8;//blockalign 	2 	バイト数/ブロック
-	*((short int*)(&header[34])) = nbit;	//bitswidth 	2 	ビット数/サンプル
+	*((short int*)(&header[22])) = 1;		 //channels	 	2 	# of Channels
+	*((int*)(&header[24])) = fs;			 //samplerate 	4 	samples/sec
+	*((int*)(&header[28])) = fs * nbit / 8;	 //bytepersec 	4 	bytes/sec
+	*((short int*)(&header[32])) = nbit / 8; //blockalign 	2 	bytes/block
+	*((short int*)(&header[34])) = nbit;	 //bitswidth 	2 	bits/sample
 
 	header[36] = 'd'; header[37] = 'a'; header[38] = 't'; header[39] = 'a';
 
@@ -1229,7 +1244,7 @@ int main(int argc, char *argv[])
 	for(i = 0;i < equLen;i++) free(waveSpecgram[i]);
 	free(waveSpecgram);
 
-	printf("complete.\n");
+	printf("Complete!\n");
 
 	return 0;
 }

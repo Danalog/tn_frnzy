@@ -42,7 +42,7 @@ void interp1(double *t, double *y, int iLen, double *t1, int oLen, double *y1)
 	s = (double *)malloc(sizeof(double) * oLen);
 	k = (int   *)malloc(sizeof(int)   * oLen);
 	
-	// 初期設定
+	// Initialization
 	for(i = 0;i < iLen-1;i++) h[i] = t[i+1]-t[i];
 	for(i = 0;i < oLen;i++) {p[i] = i; k[i] = 0;}
 
@@ -67,7 +67,7 @@ void interp1(double *t, double *y, int iLen, double *t1, int oLen, double *y1)
 long decimateForF0(double *x, int xLen, double *y, int r)
 {
 //	int r = 11;
-	int nfact = 9; // 多分これは固定でOK
+	int nfact = 9; // Maybe this can be fixed
 	double *tmp1, *tmp2;
 	tmp1 = (double *)malloc(sizeof(double) * (xLen + nfact*2));
 	tmp2 = (double *)malloc(sizeof(double) * (xLen + nfact*2));
@@ -99,7 +99,7 @@ void filterForDecimate(double *x, int xLen, double *y, int r)
 {
 	double w[3], wt;
 	w[0] = w[1] = w[2] = 0.0;
-	double a[3], b[2]; // フィルタ係数 (r依存)
+	double a[3], b[2]; // Filter coefficient (r-dependent)
 
 	switch(r)
 	{
@@ -163,7 +163,7 @@ void filterForDecimate(double *x, int xLen, double *y, int r)
 	}
 }
 
-// matlabに順ずる丸め
+// Rounding according to matlab
 int roundi(double x)
 {
 	if(x > 0)
@@ -172,7 +172,7 @@ int roundi(double x)
 		return (int)(x-0.5);
 }
 
-// 差分
+// Diff
 void diff(double *x, int xLength, double *ans)
 {
 	for(int i = 0;i < xLength-1;i++)
@@ -183,8 +183,8 @@ void diff(double *x, int xLength, double *ans)
 }
 
 
-// サンプリング間隔が等間隔に限定し高速に動作するinterp1．
-// 基本的には同じだが，配列の要素数を明示的に指定する必要がある．
+// The sampling interval is limited to equal intervals, and the interp1.0 operates at high speed.
+// Basically the same, but you need to explicitly specify the number of elements in the array.
 void interp1Q(double x, double shift, double *y, int xLength, double *xi, int xiLength, double *ans)
 {
 	double deltaX;
@@ -215,7 +215,7 @@ void interp1Q(double x, double shift, double *y, int xLength, double *xi, int xi
 	free(deltaY);
 }
 
-// xorshift法と中心極限定理との組み合わせ
+// Combining the xorshift method with the central limit theorem
 float randn(void) 
 {
 	static unsigned int x = 123456789;
@@ -240,8 +240,8 @@ float randn(void)
 	return (float)tmp / 268435456.0f - 6.0f;
 }
 
-// fftfilt関数の移植
-// yは，fftl分の長さを確保すること．
+// Porting the fftfilt function
+// The length of y should be equal to fftl.
 /*
 void fftfilt(double *x, int xlen, double *h, int hlen, int fftl, double *y)
 {
@@ -284,7 +284,7 @@ void fftfilt(double *x, int xlen, double *h, int hlen, int fftl, double *y)
 	fftw_destroy_plan(inverseFFT);
 }
 */
-// 2次元配列 (n*n)の逆行列を計算．メモリは確保しておくこと
+// Computes the inverse matrix of a 2D array (n*n). Make sure you have enough memory.
 void inv(double **r, int n, double **invr)
 {
 	int i,j,k;
@@ -299,8 +299,7 @@ void inv(double **r, int n, double **invr)
 	}
 	for(i = 0;i < n;i++) invr[i][i] = 1.0;
 
-	// 配列の初期化
-	//
+	// Initialize Array
 	for(i = 0;i < n;i++)
 	{
 		tmp = r[i][i]; r[i][i] = 1.0;
@@ -314,7 +313,7 @@ void inv(double **r, int n, double **invr)
 		}
 	}
 
-	// これで半分完了
+	// Halfway there
 	for(i = n-1;i >= 0;i--)
 	{
 		for(j = 0;j < i;j++)

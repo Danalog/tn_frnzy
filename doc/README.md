@@ -6,3 +6,6 @@ See readme.txt for original readme
 
 1/8/2021
 - Created Changelog
+
+1/20/2021
+- Translated All Comments
